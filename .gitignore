@@ -9,4 +9,4 @@ logs
 
 # Files
 build
-public/*.wasm.*
+docs/*.wasm.*
