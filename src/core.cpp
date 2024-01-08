@@ -1,18 +1,32 @@
-/*#ifdef __EMSCRIPTEN__
+#ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
+#include <iostream>
 
 extern "C"
 {
     EMSCRIPTEN_KEEPALIVE
-    const char *getHelloMessage()
+    const char *getHelloMessage(char* strrr)
     {
-        const char *str = "Hello, world! 2\n";
-        return str;
-    }
-}*/
+        std::cout << "?!!!!\n";
+        int nsymb = 0;
+        char* ptr = strrr;
+        while(*ptr != 0) {
+            ++nsymb;
+            ++ptr;
+        }
 
-#include <ctime>
+        char* str2 = new char[nsymb];
+        for(int i = 0; i < nsymb; ++i)
+            str2[i] = strrr[nsymb - 1 - i];
+        return str2;
+
+        //const char *str = "Hello, world! 3\n";
+        //return str;
+    }
+}
+
+/*#include <ctime>
 #include <chrono>
 #include <iostream>
 
@@ -33,4 +47,4 @@ int main()
     cout << ' ' << int_ms.count() << " ms\n";
 
 	return 0;
-}
+}*/
