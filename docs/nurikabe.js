@@ -3,13 +3,15 @@ let ncols = 5
 const WHITE = 'w'
 const BLACK = 'b'
 const UNKN = 'u'
-let last_click_color = BLACK
-let last_click_x = -1
-let last_click_y = -1
-let nlast_not_unkn_colors = 0
+let edit_cell_x = 0
+let edit_cell_y = 0
  
 const gameBoard = document.getElementById("gameBoard")
 let board = []
+
+const MODE_EDIT = 'e'
+const MODE_PLAY = 'p'
+let g_mode = MODE_EDIT
  
 function initialize_board() {
     for (let x = 0; x < ncols; ++x) {
@@ -32,47 +34,84 @@ function initialize_board() {
         }
     }
 }
- 
-function click_cell(x, y) {
+
+function left_click_cell(x, y) {
     if (x < 0 || x >= ncols || y < 0 || y >= nrows) {
         alert("er2")
         return
     }
 
-    if(board[x][y].number > 0) {
+    if(g_mode === MODE_PLAY) {
+        if(board[x][y].number > 0) {
+            return
+        }
+
+        const old_color = board[x][y].color
+        if(old_color === UNKN || old_color === WHITE) {
+            board[x][y].color = BLACK
+        } else if(old_color === BLACK) {
+            board[x][y].color = UNKN
+        } else {
+            alert("error")
+        }
+    } else if(g_mode === MODE_EDIT) {
+        if(edit_cell_x === x && edit_cell_y === y) {
+            board[x][y].number += 1
+            if(board[x][y].number === 1000) {
+                board[x][y].number = 0
+                board[x][y].color = UNKN
+            } else {
+                board[x][y].color = WHITE
+            }
+        } else {
+            edit_cell_x = x
+            edit_cell_y = y
+        }
+    } else {
+        alert("error")
+    }
+
+    handle_board_after_change()
+    render_board();
+}
+
+function right_click_cell(x, y) {
+    if (x < 0 || x >= ncols || y < 0 || y >= nrows) {
+        alert("er2")
         return
     }
 
-    const old_color = board[x][y].color
-    if(old_color === UNKN) {
-        board[x][y].color = last_click_color
-        nlast_not_unkn_colors = 1
-    } else if(old_color === WHITE) {
-        if(last_click_x != x || last_click_y != y || nlast_not_unkn_colors != 2) {
-            board[x][y].color = BLACK
-            last_click_color = BLACK
-            nlast_not_unkn_colors = 2
-        } else {
-            board[x][y].color = UNKN
-            last_click_color = BLACK
-            nlast_not_unkn_colors = 0
+    if(g_mode === MODE_PLAY) {
+        if(board[x][y].number > 0) {
+            return
         }
-    } else if(old_color === BLACK) {
-        if(last_click_x != x || last_click_y != y || nlast_not_unkn_colors != 2) {
+
+        const old_color = board[x][y].color
+        if(old_color === UNKN || old_color === BLACK) {
             board[x][y].color = WHITE
-            last_click_color = WHITE
-            nlast_not_unkn_colors = 2
-        } else {
+        } else if(old_color === WHITE) {
             board[x][y].color = UNKN
-            last_click_color = WHITE
-            nlast_not_unkn_colors = 0
+        } else {
+            alert("error")
+        }
+    } else if(g_mode === MODE_EDIT) {
+        if(edit_cell_x === x && edit_cell_y === y) {
+            if(board[x][y].number != 0) {
+                board[x][y].number -= 1
+                if(board[x][y].number == 0) {
+                    board[x][y].color = UNKN
+                }
+            } else {
+                board[x][y].number = 999
+                board[x][y].color = WHITE
+            }
+        } else {
+            edit_cell_x = x
+            edit_cell_y = y
         }
     } else {
-        alert(error)
+        alert("error")
     }
-
-    last_click_x = x;
-    last_click_y = y;
 
     handle_board_after_change()
     render_board();
@@ -245,8 +284,9 @@ function render_board() {
  
     for (let y = 0; y < nrows; ++y) {
         for (let x = 0; x < ncols; ++x) {
-            const cell = document.createElement("div");
-            cell.className = "cell";
+            const cell = document.createElement("div")
+            cell.className = "cell"
+            cell.id = "cell" + x + "_" + y
             if (board[x][y].color === WHITE) {
                 cell.classList.add("white")                
             } else if(board[x][y].color === BLACK) {
@@ -259,6 +299,9 @@ function render_board() {
             if(board[x][y].mistake) {
                 cell.classList.add("mistake")
             }
+            if(g_mode == MODE_EDIT && x == edit_cell_x && y == edit_cell_y) {
+                cell.classList.add("selected")
+            }
 
             if (board[x][y].number > 0) {
                 const ttt = document.createElement("p")
@@ -266,13 +309,100 @@ function render_board() {
                 ttt.textContent = board[x][y].number
                 cell.appendChild(ttt)
             }
-            cell.addEventListener("click", () => click_cell(x, y));
+            cell.addEventListener("click", () => left_click_cell(x, y));
+            cell.addEventListener("contextmenu", (event) => 
+            {
+                event.preventDefault();
+                right_click_cell(x, y)
+                return false
+            });
+
             gameBoard.appendChild(cell);
         }
         gameBoard.appendChild(document.createElement("br"));
     }
 }
  
+function set_mode(mode) {
+    if(mode === MODE_PLAY) {
+        for (let y = 0; y < nrows - 1; ++y) {
+            for (let x = 0; x < ncols; ++x) {
+                if(board[x][y].number != 0 && board[x][y + 1].number != 0) {
+                    board[x][y].mistake = true;
+                    board[x][y + 1].mistake = true;
+                    render_board()
+                    return
+                }
+            }
+        }
+        for (let x = 0; x < ncols - 1; ++x) {
+            for (let y = 0; y < nrows; ++y) {
+                if(board[x][y].number != 0 && board[x + 1][y].number != 0) {
+                    board[x][y].mistake = true;
+                    board[x + 1][y].mistake = true;
+                    render_board()
+                    return
+                }
+            }
+        }
+    }
+
+    g_mode = mode
+    if(mode === MODE_EDIT) {
+        const edit_button = document.getElementById("edit_mode_button")
+        edit_button.classList.remove("inactive_mode_button")
+        edit_button.classList.add("active_mode_button")
+        const play_button = document.getElementById("play_mode_button")
+        play_button.classList.remove("active_mode_button")
+        play_button.classList.add("inactive_mode_button")
+
+        document.addEventListener("keydown", keyboard_interceptor_in_edit_mode)
+    } else if(mode == MODE_PLAY) {
+        const edit_button = document.getElementById("edit_mode_button")
+        edit_button.classList.remove("active_mode_button")
+        edit_button.classList.add("inactive_mode_button")
+        const play_button = document.getElementById("play_mode_button")
+        play_button.classList.remove("inactive_mode_button")
+        play_button.classList.add("active_mode_button")
+
+        document.removeEventListener("keydown", keyboard_interceptor_in_edit_mode)
+    } else {
+        alert("errr")
+    }
+
+    handle_board_after_change();
+    render_board();
+}
+
+function keyboard_interceptor_in_edit_mode(event) {
+    if(event.key >= "0" && event.key <= "9") {
+        const integer = Number(event.key)
+        if(edit_cell_x < 0 || edit_cell_x >= ncols || edit_cell_y < 0 || edit_cell_y >= nrows) {
+            alert("err2")
+        }
+        const old_number = board[edit_cell_x][edit_cell_y].number
+        if(old_number < 0 || old_number >= 1000) {
+            alert("err4")
+        }
+        board[edit_cell_x][edit_cell_y].number = old_number * 10 + integer
+        if(board[edit_cell_x][edit_cell_y].number >= 1000) {
+            board[edit_cell_x][edit_cell_y].number = integer
+        }
+
+        if(board[edit_cell_x][edit_cell_y].number > 0) {
+            board[edit_cell_x][edit_cell_y].color = WHITE
+        } else {
+            board[edit_cell_x][edit_cell_y].color = UNKN
+        }
+        handle_board_after_change()
+        render_board();
+    }
+}
+
+
+// running code
+
 initialize_board();
-handle_board_after_change();
-render_board();
+set_mode(MODE_EDIT);
+// handle_board_after_change();
+// render_board();
