@@ -396,6 +396,49 @@ function keyboard_interceptor_in_edit_mode(event) {
         }
         handle_board_after_change()
         render_board();
+    } else if(event.key == "Delete") {
+        if(board[edit_cell_x][edit_cell_y].number > 0) {
+            board[edit_cell_x][edit_cell_y].number = 0
+            board[edit_cell_x][edit_cell_y].color = UNKN
+
+            handle_board_after_change()
+            render_board();
+        }
+    } else if(event.key == "Backspace") {
+        if(board[edit_cell_x][edit_cell_y].number > 0) {
+            const old_number = board[edit_cell_x][edit_cell_y].number
+            board[edit_cell_x][edit_cell_y].number = Math.floor(old_number / 10)
+            if(board[edit_cell_x][edit_cell_y].number == 0) {
+                board[edit_cell_x][edit_cell_y].color = UNKN
+            }
+
+            handle_board_after_change()
+            render_board();
+        }
+    } else if(event.key == "ArrowLeft") {
+        if(edit_cell_x > 0) {
+            edit_cell_x -= 1;
+            handle_board_after_change()
+            render_board();
+        }
+    } else if(event.key == "ArrowRight") {
+        if(edit_cell_x < ncols - 1) {
+            edit_cell_x += 1;
+            handle_board_after_change()
+            render_board();
+        }
+    } else if(event.key == "ArrowUp") {
+        if(edit_cell_y > 0) {
+            edit_cell_y -= 1;
+            handle_board_after_change()
+            render_board();
+        }
+    } else if(event.key == "ArrowDown") {
+        if(edit_cell_y < nrows - 1) {
+            edit_cell_y += 1;
+            handle_board_after_change()
+            render_board();
+        }
     }
 }
 
