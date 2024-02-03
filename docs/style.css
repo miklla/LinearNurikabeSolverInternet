@@ -3,9 +3,23 @@ body {
     text-align: center;
 }
 
+.canvas {
+    display: flexbox;
+    flex-direction: column;
+    flex-wrap:nowrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas_area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .board {
     display: inline-block;
-    margin: 20px;
+    margin: 0px;
     border: 5px solid #000000;
     border-collapse: collapse;
     border-radius: 5px;
@@ -26,6 +40,7 @@ body {
     vertical-align: middle;
     /*font-size: 20px;*/
     cursor: pointer;
+    -webkit-user-select: none;
     user-select: none;
  
     /* Default color for unrevealed tiles */
@@ -132,4 +147,11 @@ li.dropdown {
 
 .inactive_mode_button {
     border-style: hidden;
+}
+
+.remove_add_edit_button {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    margin: 15px;
 }

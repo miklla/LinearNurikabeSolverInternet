@@ -279,7 +279,8 @@ function white_spread_dfs(x, y, whites, white_index, last_number) {
 }
 
 function render_board() {
-    gameBoard.innerHTML = "";
+    //gameBoard.innerHTML = "";
+    while (gameBoard.firstChild) { gameBoard.removeChild(gameBoard.firstChild); }
     /*gameBoard.className = "board"*/
  
     for (let y = 0; y < nrows; ++y) {
@@ -321,6 +322,22 @@ function render_board() {
         }
         gameBoard.appendChild(document.createElement("br"));
     }
+
+    /*const canvas = document.getElementById("canvas")
+    canvas.innerHTML = ""
+    
+    const newElement = document.createElement("div")
+    newElement.className = "cell"
+    newElement.classList.add("left_edit_button")
+    newElement.textContent = "+"
+    canvas.appendChild(newElement)
+
+    canvas.appendChild(gameBoard)*/
+
+    /*const newElement2 = document.createElement("div")
+    newElement.className = "cell"
+    newElement.textContent = "-"
+    canvas.appendChild(newElement2);*/
 }
  
 function set_mode(mode) {
