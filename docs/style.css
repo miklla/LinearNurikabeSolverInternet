@@ -147,15 +147,15 @@ li.dropdown {
     height: 100px;
     font-size: xx-large;
     background-color:#ffffff;
+    border-style: hidden;
 }
 
 .active_mode_button {
-    border-style: dashed;
+    outline-style: dashed;
+    outline-offset: -10px;
 }
 
-.inactive_mode_button {
-    border-style: hidden;
-}
+
 
 .remove_add_edit_button {
     border-radius: 50%;
