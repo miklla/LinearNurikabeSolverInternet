@@ -2,68 +2,101 @@
 <html lang="en">
 
 <head>
-    <title>Linear Nurikabe Solver</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Site for editing and solving nurikabe puzzles. This includes powerful solver right in your browser.">
-    <link rel="stylesheet" type="text/css" href="./style.css">
-    <link rel="icon" href="favicon.ico">
+  <title>Linear Nurikabe Solver</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Site for editing and solving nurikabe puzzles. This includes powerful solver right in your browser.">
+  <link rel="stylesheet" type="text/css" href="./style.css">
+  <link rel="icon" href="favicon.ico">
 </head>
 
 <body>
-    <h1>Linear Nurikabe Solver</h1>
-    <div id="menuBar">
-        <ul>
-            <li class="dropdown">
-              <span class="dropbtn">Import / Export</span>
-              <div class="dropdown-content">
-                <span>Share board</span>
-                <span>Import from janko.at</span>
-                <span>Import from puzz.link</span>
-                <span>Export to puzz.link</span>
-              </div>
-            </li>
-            <li class="dropdown">
-              <span class="dropbtn">Examples</span>
-              <div class="dropdown-content">
-                <span>Very easy</span>
-                <span>Easy</span>
-              </div>
-            </li>
-            <li><span>Nothing</span></li>
-            <li class="dropdown">
-              <span class="dropbtn">Help</span>
-              <div class="dropdown-content">
-                <span>Rules</span>
-                <span>About</span>
-              </div>
-            </li>
-          </ul>
+  <h1>Linear Nurikabe Solver</h1>
+  <div id="menuBar">
+      <ul>
+          <li class="dropdown">
+            <span class="dropbtn">Import / Export</span>
+            <div class="dropdown-content">
+              <span>Share board</span>
+              <span>Import from janko.at</span>
+              <span>Import from puzz.link</span>
+              <span>Export to puzz.link</span>
+            </div>
+          </li>
+          <li class="dropdown">
+            <span class="dropbtn">Examples</span>
+            <div class="dropdown-content">
+              <span>Very easy</span>
+              <span>Easy</span>
+            </div>
+          </li>
+          <li><span>Nothing</span></li>
+          <li class="dropdown">
+            <span class="dropbtn">Help</span>
+            <div class="dropdown-content">
+              <span>Rules</span>
+              <span>About</span>
+            </div>
+          </li>
+        </ul>
+  </div>
+  <div>
+    <button type="button" class="mode_button" id="edit_mode_button" onclick="set_mode(MODE_EDIT)">
+      Edit Mode
+    </button>
+    <button type="button" class="mode_button" id="play_mode_button" onclick="set_mode(MODE_PLAY)">
+      Play Mode
+    </button>
+  </div>
+  <div class="canvas" id="canvas">
+    <div class="canvas_area_hor">
+      <button type="button" class="remove_add_edit_button" id="add_row_top_button" onclick="add_row_top()"><p>+</p></button>
+      <button type="button" class="remove_add_edit_button" id="remove_row_top_button" onclick="remove_row_top()"><p>-</p></button>
     </div>
-    <div>
-      <button type="button" class="mode_button" id="edit_mode_button" onclick="set_mode(MODE_EDIT)">
-        Edit Mode
-      </button>
-      <button type="button" class="mode_button" id="play_mode_button" onclick="set_mode(MODE_PLAY)">
-        Play Mode
-      </button>
-    </div>
-    <div class="canvas" id="canvas">
-      <div class="canvas_area">
-        <button type="button" class="remove_add_edit_button"><p>+</p></button>
+    <div class="canvas_area_hor">
+      <div class="canvas_area_ver">
+        <button type="button" class="remove_add_edit_button" id="add_col_left_button" onclick="add_col_left()"><p>+</p></button>
+        <button type="button" class="remove_add_edit_button" id="remove_col_left_button" onclick="remove_col_left()"><p>-</p></button>
       </div>
-      <div class="canvas_area">
-        <button type="button" class="remove_add_edit_button"><p>l</p></button>
-        <div class="board" id="gameBoard"></div>
-        <button type="button" class="remove_add_edit_button"><p>r</p></button>
-      </div>
-      <div class="canvas_area">
-        <button type="button" class="remove_add_edit_button"><p>-</p></button>
+      <div class="board" id="gameBoard"></div>
+      <div class="canvas_area_ver">
+        <button type="button" class="remove_add_edit_button" id="add_col_right_button" onclick="add_col_right()"><p>+</p></button>
+        <button type="button" class="remove_add_edit_button" id="remove_col_right_button" onclick="remove_col_right()"><p>-</p></button>
       </div>
     </div>
-    <h2>Site is under construction</h2>
+    <div class="canvas_area_hor">
+      <button type="button" class="remove_add_edit_button" id="add_row_bottom_button" onclick="add_row_bottom()"><p>+</p></button>
+      <button type="button" class="remove_add_edit_button" id="remove_row_bottom_button" onclick="remove_row_bottom()"><p>-</p></button>
+    </div>
+  </div>
+  <h2>Site is under construction</h2>
+  <div class="row">
+    <div id="output"></div>
+  </div>
+  <button type=""button" id="solve_button"><p>Solve</p></button>
 
-    <script src="./nurikabe.js"></script>
+  <script src="a.out.js"></script>
+  
+  <script>
+    Module['onRuntimeInitialized'] = onRuntimeInitialized;
+    function onRuntimeInitialized() {
+        const helloMessage = Module.cwrap('getHelloMessage', 'string', ['string'])('abcde');
+        const element = document.getElementById('output');
+        element.textContent = helloMessage;
+        const solve_button = document.getElementById('solve_button');
+        solve_button.addEventListener("click", () => alert(Module.cwrap('getHelloMessage', 'string', ['string'])(serialize_board())));
+    }
+
+    /*document.querySelector(".mybutton").addEventListener("click", function () {
+        alert("check console");
+        const helloMessage2 = Module.cwrap('getHelloMessage', 'string', ['string'])('ijklmn');
+        const element = document.getElementById('sometext');
+        element.innerHTML = helloMessage2;
+    });*/
+  </script>
+
+
+  <script src="./nurikabe.js"></script>
 </body>
 
 </html>

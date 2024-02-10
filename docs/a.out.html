@@ -36,6 +36,8 @@
             element.textContent = helloMessage;
         }
 
+        getHelloMessage = Module.cwrap('getHelloMessage', 'string', ['string'])
+
         document.querySelector(".mybutton").addEventListener("click", function () {
             alert("check console");
             const helloMessage2 = Module.cwrap('getHelloMessage', 'string', ['string'])('ijklmn');

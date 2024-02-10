@@ -1,5 +1,7 @@
 let nrows = 5
 let ncols = 5
+const MIN_NROWS = 3
+const MIN_NCOLS = 3
 const WHITE = 'w'
 const BLACK = 'b'
 const UNKN = 'u'
@@ -373,6 +375,23 @@ function set_mode(mode) {
         play_button.classList.remove("active_mode_button")
         play_button.classList.add("inactive_mode_button")
 
+        const add_row_top_button = document.getElementById("add_row_top_button")
+        add_row_top_button.classList.remove("hidden")
+        const remove_row_top_button = document.getElementById("remove_row_top_button")
+        remove_row_top_button.classList.remove("hidden")
+        const add_row_bottom_button = document.getElementById("add_row_bottom_button")
+        add_row_bottom_button.classList.remove("hidden")
+        const remove_row_bottom_button = document.getElementById("remove_row_bottom_button")
+        remove_row_bottom_button.classList.remove("hidden")
+        const add_col_left_button = document.getElementById("add_col_left_button")
+        add_col_left_button.classList.remove("hidden")
+        const remove_col_left_button = document.getElementById("remove_col_left_button")
+        remove_col_left_button.classList.remove("hidden")
+        const add_col_right_button = document.getElementById("add_col_right_button")
+        add_col_right_button.classList.remove("hidden")
+        const remove_col_right_button = document.getElementById("remove_col_right_button")
+        remove_col_right_button.classList.remove("hidden")
+
         document.addEventListener("keydown", keyboard_interceptor_in_edit_mode)
     } else if(mode == MODE_PLAY) {
         const edit_button = document.getElementById("edit_mode_button")
@@ -381,6 +400,23 @@ function set_mode(mode) {
         const play_button = document.getElementById("play_mode_button")
         play_button.classList.remove("inactive_mode_button")
         play_button.classList.add("active_mode_button")
+
+        const add_row_top_button = document.getElementById("add_row_top_button")
+        add_row_top_button.classList.add("hidden")
+        const remove_row_top_button = document.getElementById("remove_row_top_button")
+        remove_row_top_button.classList.add("hidden")
+        const add_row_bottom_button = document.getElementById("add_row_bottom_button")
+        add_row_bottom_button.classList.add("hidden")
+        const remove_row_bottom_button = document.getElementById("remove_row_bottom_button")
+        remove_row_bottom_button.classList.add("hidden")
+        const add_col_left_button = document.getElementById("add_col_left_button")
+        add_col_left_button.classList.add("hidden")
+        const remove_col_left_button = document.getElementById("remove_col_left_button")
+        remove_col_left_button.classList.add("hidden")
+        const add_col_right_button = document.getElementById("add_col_right_button")
+        add_col_right_button.classList.add("hidden")
+        const remove_col_right_button = document.getElementById("remove_col_right_button")
+        remove_col_right_button.classList.add("hidden")
 
         document.removeEventListener("keydown", keyboard_interceptor_in_edit_mode)
     } else {
@@ -459,6 +495,115 @@ function keyboard_interceptor_in_edit_mode(event) {
     }
 }
 
+function add_row_top() {
+    for(let x = 0; x < ncols; ++x) {
+        /*for(let y = nrows; y > 0; --y)
+            board[x][y] = board[x][y - 1];
+        board[x][0] = {number: 0, color: UNKN, mistake: false}*/
+        board[x].unshift({number: 0, color: UNKN, mistake: false})
+    }
+    nrows += 1
+    edit_cell_y += 1
+    handle_board_after_change()
+    render_board()
+}
+
+function remove_row_top() {
+    if(nrows > MIN_NROWS) {
+        for(let x = 0; x < ncols; ++x) {
+            /*for(let y = 0; y < nrows; ++y)
+                board[x][y] = board[x][y + 1];
+            board[x][nrows] = {number: 0, color: UNKN, mistake: false}*/
+            board[x].shift()
+        }
+        nrows -= 1
+        if(edit_cell_y > 0) edit_cell_y -= 1
+        handle_board_after_change()
+        render_board()
+    }
+}
+
+function add_row_bottom() {
+    for(let x = 0; x < ncols; ++x) {
+        board[x][nrows] = {number: 0, color: UNKN, mistake: false}
+    }
+    nrows += 1
+    handle_board_after_change()
+    render_board()
+}
+
+function remove_row_bottom() {
+    if(nrows > MIN_NROWS) {
+        for(let x = 0; x < ncols; ++x) {
+            board[x].pop()
+        }
+        if(edit_cell_y == nrows - 1) edit_cell_y -= 1
+        nrows -= 1        
+        handle_board_after_change()
+        render_board()
+    }
+}
+
+function add_col_left() {
+    board.unshift([])
+    for(let y = 0; y < nrows; ++y) {
+        board[0][y] = {number: 0, color: UNKN, mistake: false}
+    }
+    ncols += 1
+    edit_cell_x += 1
+    handle_board_after_change()
+    render_board()
+}
+
+function remove_col_left() {
+    if(ncols > MIN_NCOLS) {
+        board.shift()
+        ncols -= 1
+        if(edit_cell_x > 0) edit_cell_x -= 1
+        handle_board_after_change()
+        render_board()
+    }
+}
+
+function add_col_right() {
+    board.push([])
+    for(let y = 0; y < nrows; ++y) {
+        board[ncols][y] = {number: 0, color: UNKN, mistake: false}
+    }
+    ncols += 1
+    handle_board_after_change()
+    render_board()
+}
+
+function remove_col_right() {
+    if(ncols > MIN_NCOLS) {
+        board.pop()
+        if(edit_cell_x == ncols - 1) edit_cell_x -= 1
+        ncols -= 1
+        handle_board_after_change()
+        render_board()
+    }
+}
+
+function serialize_board() {
+    let string = ""
+    string += nrows + '\n'
+    string += ncols + '\n'
+    for(let y = 0; y < nrows; ++y) {
+        for(let x = 0; x < ncols; ++x)
+            string += board[x][y].number + ' '
+        string += '\n'
+    }
+    for(let y = 0; y < nrows; ++y) {
+        for(let x = 0; x < ncols; ++x)
+            string += board[x][y].color
+        string += '\n'
+    }
+
+    //alert(string)
+
+    return string
+}
 
 // running code
 
@@ -466,3 +611,25 @@ initialize_board();
 set_mode(MODE_EDIT);
 // handle_board_after_change();
 // render_board();
+
+
+
+/*Module['onRuntimeInitialized'] = onRuntimeInitialized;
+function onRuntimeInitialized() {
+    const helloMessage = Module.cwrap('getHelloMessage', 'string', ['string'])('abcde');
+    const element = document.getElementById('output');
+    //element.textContent = helloMessage;
+}
+getHelloMessage = Module.cwrap('getHelloMessage', 'string', ['string'])
+
+const element = document.getElementById('output');
+//const str = serialize_board()
+element.textContent = Module.cwrap('getHelloMessage', 'string', ['string'])("str");*/
+
+
+/*
+import { Module } from "./a.out.js"
+getHelloMessage = Module.cwrap('getHelloMessage', 'string', ['string'])
+
+alert(getHelloMessage('asdasda'))*/
+//serialize_board()
