@@ -73,18 +73,19 @@
   <div class="row">
     <div id="output"></div>
   </div>
-  <button type=""button" id="solve_button"><p>Solve</p></button>
+  <button type="button" id="solve_button"><p>Solve</p></button>
 
-  <script src="a.out.js"></script>
+  <!--<script src="a.out.js"></script>-->
+  <script src="solver_web.js"></script>
   
   <script>
     Module['onRuntimeInitialized'] = onRuntimeInitialized;
     function onRuntimeInitialized() {
-        const helloMessage = Module.cwrap('getHelloMessage', 'string', ['string'])('abcde');
-        const element = document.getElementById('output');
-        element.textContent = helloMessage;
+        //const helloMessage = Module.cwrap('solve_web', 'string', ['string'])('abcde');
+        //const element = document.getElementById('output');
+        //element.textContent = helloMessage;
         const solve_button = document.getElementById('solve_button');
-        solve_button.addEventListener("click", () => alert(Module.cwrap('getHelloMessage', 'string', ['string'])(serialize_board())));
+        solve_button.addEventListener("click", () => alert(Module.cwrap('solve_web', 'string', ['string'])(serialize_board())));
     }
 
     /*document.querySelector(".mybutton").addEventListener("click", function () {

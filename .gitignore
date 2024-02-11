@@ -10,3 +10,4 @@ logs
 # Files
 build
 docs/*.wasm.*
+src/solver.cpp
