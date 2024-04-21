@@ -5,6 +5,27 @@ const MIN_NCOLS = 3
 const WHITE = 'w'
 const BLACK = 'b'
 const UNKN = 'u'
+const SOLVER_UNKN = -3
+const SOLVER_BLACK = -2
+const SOLVER_WHITE = -1
+
+// history actions
+const ACTION_COLOR = 'c'
+const ACTION_NUMBER = 'n'
+const ACTION_ADD_ROW_TOP = 'r'
+const ACTION_ADD_ROW_BOTTOM = 's'
+const ACTION_REMOVE_ROW_TOP = 'q'
+const ACTION_REMOVE_ROW_BOTTOM = 'p'
+const ACTION_ADD_COL_TOP = 'a'
+const ACTION_ADD_COL_BOTTOM = 'b'
+const ACTION_REMOVE_COL_TOP = 'd'
+const ACTION_REMOVE_COL_BOTTOM = 'e'
+
+const REASON_USER = '0'
+
+let history = []
+let cur_history = 0  // applied 0 .. (cur_history-1) actions
+
 let edit_cell_x = 0
 let edit_cell_y = 0
  
@@ -50,9 +71,9 @@ function left_click_cell(x, y) {
 
         const old_color = board[x][y].color
         if(old_color === UNKN || old_color === WHITE) {
-            board[x][y].color = BLACK
+            action_set_color(x, y, BLACK, REASON_USER)
         } else if(old_color === BLACK) {
-            board[x][y].color = UNKN
+            action_set_color(x, y, UNKN, REASON_USER)
         } else {
             alert("error")
         }
@@ -74,7 +95,7 @@ function left_click_cell(x, y) {
     }
 
     handle_board_after_change()
-    render_board();
+    render_board()
 }
 
 function right_click_cell(x, y) {
@@ -90,9 +111,9 @@ function right_click_cell(x, y) {
 
         const old_color = board[x][y].color
         if(old_color === UNKN || old_color === BLACK) {
-            board[x][y].color = WHITE
+            action_set_color(x, y, WHITE, REASON_USER)
         } else if(old_color === WHITE) {
-            board[x][y].color = UNKN
+            action_set_color(x, y, UNKN, REASON_USER)
         } else {
             alert("error")
         }
@@ -100,7 +121,7 @@ function right_click_cell(x, y) {
         if(edit_cell_x === x && edit_cell_y === y) {
             if(board[x][y].number != 0) {
                 board[x][y].number -= 1
-                if(board[x][y].number == 0) {
+                if(board[x][y].number === 0) {
                     board[x][y].color = UNKN
                 }
             } else {
@@ -117,6 +138,97 @@ function right_click_cell(x, y) {
 
     handle_board_after_change()
     render_board();
+}
+
+function action_set_color(x, y, next, reason) {
+    if(x >= ncols || y >= nrows) {
+        alert("set x y error")
+    }
+    if(next === board[x][y].color) {
+        alert("set color error" + x + y + next + board[x][y].color)
+    }
+
+    if(cur_history >= history.length) {
+        history.push({})
+    } else {
+        history.length = cur_history + 1
+    }
+
+    history[cur_history].x = x;
+    history[cur_history].y = y;
+    history[cur_history].prev = board[x][y].color
+    history[cur_history].next = next
+    history[cur_history].type = ACTION_COLOR
+    history[cur_history].reason = reason
+
+    history_forward()
+}
+
+function action_set_number(x, y, next) {
+    if(x >= ncols || y >= nrows) {
+        alert("set x y error")
+    }
+    if(next === board[x][y].number) {
+        alert("set number error")
+    }
+
+    if(cur_history >= history.length) {
+        history.push({})
+    } else {
+        history.length = cur_history + 1
+    }
+
+    history[cur_history].x = x;
+    history[cur_history].y = y;
+    history[cur_history].prev = board[x][y].number
+    history[cur_history].next = next
+    history[cur_history].type = ACTION_NUMBER
+
+    history_forward()
+}
+
+function history_forward() {
+    if(cur_history >= history.length) {
+        alert("error1")
+    }
+    const h = history[cur_history]
+
+    if(h.type === ACTION_COLOR) {
+        if(board[h.x][h.y].color != h.prev) {
+            alert("error2")
+        }
+        board[h.x][h.y].color = h.next
+    } else if (h.type === ACTION_NUMBER) {
+        if(board[h.x][h.y].number != h.prev) {
+            alert("error3")
+        }
+        board[h.x][h.y].number = h.next
+    } else {
+        alert("history error")
+    }
+
+    cur_history += 1
+}
+
+function history_backward() {
+    if(cur_history <= 0) {
+        alert("error")
+    }
+    cur_history -= 1
+
+    if(history[cur_history].type === ACTION_COLOR) {
+        if(board[x][y].color != next) {
+            alert("error")
+        }
+        board[x][y].color = prev
+    } else if (history[cur_history].type === ACTION_NUMBER) {
+        if(board[x][y].number != next) {
+            alert("error")
+        }
+        board[x][y].number = prev
+    } else {
+        alert("history error")
+    }
 }
 
 function handle_board_after_change() {
@@ -210,7 +322,7 @@ function handle_full_board() {
                     if(last_number.num < 0) {
                         for(let xx = 0; xx < ncols; ++xx)
                             for(let yy = 0; yy < nrows; ++yy)
-                                if(whites[xx][yy] == white_index)
+                                if(whites[xx][yy] === white_index)
                                     board[xx][yy].mistake = true
                         return false
                     } else if(last_number.num != area) {
@@ -256,22 +368,22 @@ function white_spread_dfs(x, y, whites, white_index, last_number) {
         }
     }
 
-    if(x > 0 && board[x - 1][y].color == WHITE && whites[x - 1][y] < white_index) {
+    if(x > 0 && board[x - 1][y].color === WHITE && whites[x - 1][y] < white_index) {
         const r = white_spread_dfs(x - 1, y, whites, white_index, last_number)
         if(r < 0) return -1
         area += r
     }
-    if(x < ncols - 1 && board[x + 1][y].color == WHITE && whites[x + 1][y] < white_index) {
+    if(x < ncols - 1 && board[x + 1][y].color === WHITE && whites[x + 1][y] < white_index) {
         const r = white_spread_dfs(x + 1, y, whites, white_index, last_number)
         if(r < 0) return -1
         area += r
     }
-    if(y > 0 && board[x][y - 1].color == WHITE && whites[x][y - 1] < white_index) {
+    if(y > 0 && board[x][y - 1].color === WHITE && whites[x][y - 1] < white_index) {
         const r = white_spread_dfs(x, y - 1, whites, white_index, last_number)
         if(r < 0) return -1
         area += r
     }
-    if(y < nrows - 1 && board[x][y + 1].color == WHITE && whites[x][y + 1] < white_index) {
+    if(y < nrows - 1 && board[x][y + 1].color === WHITE && whites[x][y + 1] < white_index) {
         const r = white_spread_dfs(x, y + 1, whites, white_index, last_number)
         if(r < 0) return -1
         area += r
@@ -302,7 +414,7 @@ function render_board() {
             if(board[x][y].mistake) {
                 cell.classList.add("mistake")
             }
-            if(g_mode == MODE_EDIT && x == edit_cell_x && y == edit_cell_y) {
+            if(g_mode === MODE_EDIT && x === edit_cell_x && y === edit_cell_y) {
                 cell.classList.add("selected")
             }
 
@@ -393,7 +505,7 @@ function set_mode(mode) {
         remove_col_right_button.classList.remove("hidden")
 
         document.addEventListener("keydown", keyboard_interceptor_in_edit_mode)
-    } else if(mode == MODE_PLAY) {
+    } else if(mode === MODE_PLAY) {
         const edit_button = document.getElementById("edit_mode_button")
         edit_button.classList.remove("active_mode_button")
         edit_button.classList.add("inactive_mode_button")
@@ -449,7 +561,7 @@ function keyboard_interceptor_in_edit_mode(event) {
         }
         handle_board_after_change()
         render_board();
-    } else if(event.key == "Delete") {
+    } else if(event.key === "Delete") {
         if(board[edit_cell_x][edit_cell_y].number > 0) {
             board[edit_cell_x][edit_cell_y].number = 0
             board[edit_cell_x][edit_cell_y].color = UNKN
@@ -457,36 +569,36 @@ function keyboard_interceptor_in_edit_mode(event) {
             handle_board_after_change()
             render_board();
         }
-    } else if(event.key == "Backspace") {
+    } else if(event.key === "Backspace") {
         if(board[edit_cell_x][edit_cell_y].number > 0) {
             const old_number = board[edit_cell_x][edit_cell_y].number
             board[edit_cell_x][edit_cell_y].number = Math.floor(old_number / 10)
-            if(board[edit_cell_x][edit_cell_y].number == 0) {
+            if(board[edit_cell_x][edit_cell_y].number === 0) {
                 board[edit_cell_x][edit_cell_y].color = UNKN
             }
 
             handle_board_after_change()
             render_board();
         }
-    } else if(event.key == "ArrowLeft") {
+    } else if(event.key === "ArrowLeft") {
         if(edit_cell_x > 0) {
             edit_cell_x -= 1;
             handle_board_after_change()
             render_board();
         }
-    } else if(event.key == "ArrowRight") {
+    } else if(event.key === "ArrowRight") {
         if(edit_cell_x < ncols - 1) {
             edit_cell_x += 1;
             handle_board_after_change()
             render_board();
         }
-    } else if(event.key == "ArrowUp") {
+    } else if(event.key === "ArrowUp") {
         if(edit_cell_y > 0) {
             edit_cell_y -= 1;
             handle_board_after_change()
             render_board();
         }
-    } else if(event.key == "ArrowDown") {
+    } else if(event.key === "ArrowDown") {
         if(edit_cell_y < nrows - 1) {
             edit_cell_y += 1;
             handle_board_after_change()
@@ -537,7 +649,7 @@ function remove_row_bottom() {
         for(let x = 0; x < ncols; ++x) {
             board[x].pop()
         }
-        if(edit_cell_y == nrows - 1) edit_cell_y -= 1
+        if(edit_cell_y === nrows - 1) edit_cell_y -= 1
         nrows -= 1        
         handle_board_after_change()
         render_board()
@@ -578,7 +690,7 @@ function add_col_right() {
 function remove_col_right() {
     if(ncols > MIN_NCOLS) {
         board.pop()
-        if(edit_cell_x == ncols - 1) edit_cell_x -= 1
+        if(edit_cell_x === ncols - 1) edit_cell_x -= 1
         ncols -= 1
         handle_board_after_change()
         render_board()
@@ -603,6 +715,44 @@ function serialize_board() {
     //alert(string)
 
     return string
+}
+
+function apply_string_returned_by_solver(s) {
+    const parts = s.split('\n')  // last part is '\0' from C++
+    //alert(parts.length)
+    const returned = Number(parts[0])
+    if(returned === 0) {
+        alert("incorrect data")
+    } else {
+        for(let h = 0; h < parts.length - 2; ++h) {
+            const t = parts[h + 1].split(' ')
+            if(t.length != 6) {
+                alert("Parse error")
+            }
+            const x = Number(t[1])
+            const y = Number(t[2])
+            const solver_prev = Number(t[3])
+            if(solver_prev != SOLVER_UNKN) {
+                alert("Parse error2")
+            }
+            const solver_next = Number(t[4])
+            let next
+            if(solver_next === SOLVER_BLACK) {
+                next = BLACK
+            } else if(solver_next >= SOLVER_WHITE) {
+                next = WHITE
+            } else {
+                alert("err6")
+            }
+            const reason = t[5]
+
+            console.log(h)
+            action_set_color(x, y, next, reason)
+        }
+
+        handle_board_after_change()
+        render_board()
+    }
 }
 
 // running code

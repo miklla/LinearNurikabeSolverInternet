@@ -85,7 +85,7 @@
         //const element = document.getElementById('output');
         //element.textContent = helloMessage;
         const solve_button = document.getElementById('solve_button');
-        solve_button.addEventListener("click", () => alert(Module.cwrap('solve_web', 'string', ['string'])(serialize_board())));
+        solve_button.addEventListener("click", () => {const s = Module.cwrap('solve_web', 'string', ['string'])(serialize_board()); alert(s); apply_string_returned_by_solver(s);});
     }
 
     /*document.querySelector(".mybutton").addEventListener("click", function () {
