@@ -178,3 +178,16 @@ li.dropdown {
 .remove_add_edit_button.hidden {
     display: none;
 }
+
+.history_button {
+    /*display: inline;*/
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    /*text-align: center;
+    vertical-align: middle;*/
+}
+
+#solve_button {
+    margin: 5px
+}

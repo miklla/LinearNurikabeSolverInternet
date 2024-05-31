@@ -1,5 +1,6 @@
 let nrows = 5
 let ncols = 5
+
 const MIN_NROWS = 3
 const MIN_NCOLS = 3
 const WHITE = 'w'
@@ -12,25 +13,21 @@ const SOLVER_WHITE = -1
 // history actions
 const ACTION_COLOR = 'c'
 const ACTION_NUMBER = 'n'
-const ACTION_ADD_ROW_TOP = 'r'
-const ACTION_ADD_ROW_BOTTOM = 's'
-const ACTION_REMOVE_ROW_TOP = 'q'
-const ACTION_REMOVE_ROW_BOTTOM = 'p'
-const ACTION_ADD_COL_TOP = 'a'
-const ACTION_ADD_COL_BOTTOM = 'b'
-const ACTION_REMOVE_COL_TOP = 'd'
-const ACTION_REMOVE_COL_BOTTOM = 'e'
+const ACTION_ADD_ROW = 'r'  // in y store before which row to insert (0 .. nrows)
+const ACTION_REMOVE_ROW = 'q'  // in y store which row to remove (0 .. nrows-1), in prev store [{color, number}]
+const ACTION_ADD_COL = 'a'  // in x store before which col to insert (0 .. ncols)
+const ACTION_REMOVE_COL = 'd'  // in x store which col to remove (0 .. ncols-1), in prev store [{color, number}]
 
 const REASON_USER = '0'
 
-let history = []
+let history = []  // [h] = {x, y, prev, next, type, reason}
 let cur_history = 0  // applied 0 .. (cur_history-1) actions
 
 let edit_cell_x = 0
 let edit_cell_y = 0
  
 const gameBoard = document.getElementById("gameBoard")
-let board = []
+let board = []  // [x][y] = {number, color, mistake}
 
 const MODE_EDIT = 'e'
 const MODE_PLAY = 'p'
@@ -79,12 +76,17 @@ function left_click_cell(x, y) {
         }
     } else if(g_mode === MODE_EDIT) {
         if(edit_cell_x === x && edit_cell_y === y) {
-            board[x][y].number += 1
-            if(board[x][y].number === 1000) {
-                board[x][y].number = 0
-                board[x][y].color = UNKN
-            } else {
-                board[x][y].color = WHITE
+            let new_number = board[x][y].number + 1
+            if(new_number === 1000) {
+                new_number = 0
+            }
+
+            if(board[x][y].color != WHITE) {
+                action_set_color(x, y, WHITE, REASON_USER)
+            }
+            action_set_number(x, y, new_number)
+            if(new_number === 0) {
+                action_set_color(x, y, UNKN, REASON_USER)
             }
         } else {
             edit_cell_x = x
@@ -119,14 +121,17 @@ function right_click_cell(x, y) {
         }
     } else if(g_mode === MODE_EDIT) {
         if(edit_cell_x === x && edit_cell_y === y) {
-            if(board[x][y].number != 0) {
-                board[x][y].number -= 1
-                if(board[x][y].number === 0) {
-                    board[x][y].color = UNKN
-                }
-            } else {
-                board[x][y].number = 999
-                board[x][y].color = WHITE
+            let new_number = board[x][y].number - 1
+            if(new_number === -1) {
+                new_number = 999
+            }
+
+            if(board[x][y].color != WHITE) {
+                action_set_color(x, y, WHITE, REASON_USER)
+            }
+            action_set_number(x, y, new_number)
+            if(new_number === 0) {
+                action_set_color(x, y, UNKN, REASON_USER)
             }
         } else {
             edit_cell_x = x
@@ -188,47 +193,181 @@ function action_set_number(x, y, next) {
 }
 
 function history_forward() {
-    if(cur_history >= history.length) {
-        alert("error1")
-    }
-    const h = history[cur_history]
+    if(cur_history < history.length) {
+        const h = history[cur_history]
 
-    if(h.type === ACTION_COLOR) {
-        if(board[h.x][h.y].color != h.prev) {
-            alert("error2")
-        }
-        board[h.x][h.y].color = h.next
-    } else if (h.type === ACTION_NUMBER) {
-        if(board[h.x][h.y].number != h.prev) {
-            alert("error3")
-        }
-        board[h.x][h.y].number = h.next
-    } else {
-        alert("history error")
-    }
+        if(h.type === ACTION_COLOR) {
+            if(board[h.x][h.y].color != h.prev) {
+                alert("error2")
+            }
+            board[h.x][h.y].color = h.next
+        } else if (h.type === ACTION_NUMBER) {
+            if(board[h.x][h.y].number != h.prev) {
+                alert("error3")
+            }
+            board[h.x][h.y].number = h.next
+        } else if(h.type === ACTION_ADD_ROW) {
+            if(h.y === 0) {
+                for(let x = 0; x < ncols; ++x) {
+                    board[x].unshift({number: 0, color: UNKN, mistake: false})
+                }
+                edit_cell_y += 1
+            } else if(h.y === nrows) {
+                for(let x = 0; x < ncols; ++x) {
+                    board[x][nrows] = {number: 0, color: UNKN, mistake: false}
+                }
+            } else {
+                alert("error_row_add")
+            }
 
-    cur_history += 1
+            nrows += 1
+        } else if(h.type === ACTION_REMOVE_ROW) {
+            if(nrows <= MIN_NROWS) {
+                alert("error4")
+            }
+            for(let x = 0; x < ncols; ++x) {
+                if(board[x][h.y].color != h.prev[x].color) {
+                    alert("error5")
+                }
+                if(board[x][h.y].number != h.prev[x].number) {
+                    alert("error6")
+                }
+            }
+
+            if(h.y === 0) {
+                for(let x = 0; x < ncols; ++x) {
+                    board[x].shift()
+                }
+                if(edit_cell_y > 0) edit_cell_y -= 1
+            } else if(h.y === nrows - 1) {
+                for(let x = 0; x < ncols; ++x) {
+                    board[x].pop()
+                }
+                if(edit_cell_y === nrows - 1) edit_cell_y -= 1
+            } else {
+                alert("error_row_remove")
+            }
+            nrows -= 1
+        } else if(h.type === ACTION_ADD_COL) {
+            if(h.x === 0) {
+                board.unshift([])
+                for(let y = 0; y < nrows; ++y) {
+                    board[0][y] = {number: 0, color: UNKN, mistake: false}
+                }
+                edit_cell_x += 1
+            } else if(h.x === ncols) {
+                board.push([])
+                for(let y = 0; y < nrows; ++y) {
+                    board[ncols][y] = {number: 0, color: UNKN, mistake: false}
+                }
+            } else {
+                alert("error_col_add")
+            }
+
+            ncols += 1
+        } else if(h.type === ACTION_REMOVE_COL) {
+            if(ncols <= MIN_NCOLS) {
+                alert("error5")
+            }
+            for(let y = 0; y < nrows; ++y) {
+                if(board[h.x][y].color != h.prev[y].color) {
+                    alert("error7")
+                }
+                if(board[h.x][y].number != h.prev[y].number) {
+                    alert("error8")
+                }
+            }
+
+            if(h.x === 0) {
+                board.shift()
+                if(edit_cell_x > 0) edit_cell_x -= 1
+            } else if(h.x === ncols - 1) {
+                board.pop()
+                if(edit_cell_x === ncols - 1) edit_cell_x -= 1
+            } else {
+                alert("error_col_remove")
+            }
+
+            ncols -= 1
+        } else {
+            alert("history error")
+        }
+
+        cur_history += 1
+    } else {  // cur_history >= history.length
+        // tried to apply action which is not yet recorded, do nothing?
+    }
+    //console.log("hist_for", cur_history, history.length)
 }
 
 function history_backward() {
-    if(cur_history <= 0) {
-        alert("error")
-    }
-    cur_history -= 1
+    if(cur_history > 0) {
+        cur_history -= 1
+        const h = history[cur_history]
 
-    if(history[cur_history].type === ACTION_COLOR) {
-        if(board[x][y].color != next) {
-            alert("error")
+        if(h.type === ACTION_COLOR) {
+            if(board[h.x][h.y].color != h.next) {
+                alert("error1")
+            }
+            board[h.x][h.y].color = h.prev
+        } else if (h.type === ACTION_NUMBER) {
+            if(board[h.x][h.y].number != h.next) {
+                alert("error2")
+            }
+            board[h.x][h.y].number = h.prev
+        } else if(h.type === ACTION_ADD_ROW) {
+            if(nrows <= MIN_NROWS) {
+                alert("error4")
+            }
+            for(let x = 0; x < ncols; ++x) {
+                if(board[x][h.y].color != UNKN) {
+                    alert("error5")
+                }
+                if(board[x][h.y].number != 0) {
+                    alert("error6")
+                }
+            }
+
+            if(h.y === 0) {
+                for(let x = 0; x < ncols; ++x) {
+                    board[x].shift()
+                }
+                if(edit_cell_y > 0) edit_cell_y -= 1
+            } else if(h.y === nrows - 1) {
+                for(let x = 0; x < ncols; ++x) {
+                    board[x].pop()
+                }
+                if(edit_cell_y === nrows - 1) edit_cell_y -= 1
+            } else {
+                alert("error_row_remove")
+            }
+            nrows -= 1
+        } else if(h.type === ACTION_REMOVE_ROW) {
+            if(h.y === 0) {
+                for(let x = 0; x < ncols; ++x) {
+                    board[x].unshift({number: h.prev[x].number, color: h.prev[x].color, mistake: false})
+                }
+                edit_cell_y += 1
+            } else if(h.y === nrows) {
+                for(let x = 0; x < ncols; ++x) {
+                    board[x][nrows] = {number: h.prev[x].number, color: h.prev[x].color, mistake: false}
+                }
+            } else {
+                alert("error_row_add")
+            }
+
+            nrows += 1
+        } else {
+            alert("history error")
         }
-        board[x][y].color = prev
-    } else if (history[cur_history].type === ACTION_NUMBER) {
-        if(board[x][y].number != next) {
-            alert("error")
+    } else {  // cur_history <= 0
+        if(cur_history < 0) {
+            alert("hist_cur_back error")
         }
-        board[x][y].number = prev
-    } else {
-        alert("history error")
+        // cur_history == 0
+        // tried to unwind action before 0th, do nothing?
     }
+    //console.log("hist_back", cur_history, history.length)
 }
 
 function handle_board_after_change() {
@@ -549,22 +688,28 @@ function keyboard_interceptor_in_edit_mode(event) {
         if(old_number < 0 || old_number >= 1000) {
             alert("err4")
         }
-        board[edit_cell_x][edit_cell_y].number = old_number * 10 + integer
-        if(board[edit_cell_x][edit_cell_y].number >= 1000) {
-            board[edit_cell_x][edit_cell_y].number = integer
+
+        let new_number = old_number * 10 + integer
+        if(new_number >= 1000) {
+            new_number = integer
         }
 
-        if(board[edit_cell_x][edit_cell_y].number > 0) {
-            board[edit_cell_x][edit_cell_y].color = WHITE
-        } else {
-            board[edit_cell_x][edit_cell_y].color = UNKN
+        if(board[edit_cell_x][edit_cell_y].color != WHITE && new_number != 0) {
+            action_set_color(edit_cell_x, edit_cell_y, WHITE, REASON_USER)
         }
+        if(new_number != old_number) {
+            action_set_number(edit_cell_x, edit_cell_y, new_number)
+        }
+        if(new_number === 0 && board[edit_cell_x][edit_cell_y].color != UNKN) {
+            action_set_color(edit_cell_x, edit_cell_y, UNKN, REASON_USER)
+        }
+
         handle_board_after_change()
         render_board();
     } else if(event.key === "Delete") {
         if(board[edit_cell_x][edit_cell_y].number > 0) {
-            board[edit_cell_x][edit_cell_y].number = 0
-            board[edit_cell_x][edit_cell_y].color = UNKN
+            action_set_number(edit_cell_x, edit_cell_y, 0)
+            action_set_color(edit_cell_x, edit_cell_y, UNKN, REASON_USER)
 
             handle_board_after_change()
             render_board();
@@ -572,9 +717,10 @@ function keyboard_interceptor_in_edit_mode(event) {
     } else if(event.key === "Backspace") {
         if(board[edit_cell_x][edit_cell_y].number > 0) {
             const old_number = board[edit_cell_x][edit_cell_y].number
-            board[edit_cell_x][edit_cell_y].number = Math.floor(old_number / 10)
-            if(board[edit_cell_x][edit_cell_y].number === 0) {
-                board[edit_cell_x][edit_cell_y].color = UNKN
+            const new_number = Math.floor(old_number / 10)
+            action_set_number(edit_cell_x, edit_cell_y, new_number)
+            if(new_number == 0) {
+                action_set_color(edit_cell_x, edit_cell_y, UNKN, REASON_USER)
             }
 
             handle_board_after_change()
@@ -608,90 +754,144 @@ function keyboard_interceptor_in_edit_mode(event) {
 }
 
 function add_row_top() {
-    for(let x = 0; x < ncols; ++x) {
-        /*for(let y = nrows; y > 0; --y)
-            board[x][y] = board[x][y - 1];
-        board[x][0] = {number: 0, color: UNKN, mistake: false}*/
-        board[x].unshift({number: 0, color: UNKN, mistake: false})
+    history[cur_history] = {y: 0, type: ACTION_ADD_ROW, reason: REASON_USER}
+    if(cur_history >= history.length) {
+        alert("error_len")
     }
-    nrows += 1
-    edit_cell_y += 1
+    
+    history_forward()  // increments cur_history
+    
+    while(cur_history < history.length) {
+        history.pop()
+    }
+
     handle_board_after_change()
     render_board()
 }
 
 function remove_row_top() {
     if(nrows > MIN_NROWS) {
-        for(let x = 0; x < ncols; ++x) {
-            /*for(let y = 0; y < nrows; ++y)
-                board[x][y] = board[x][y + 1];
-            board[x][nrows] = {number: 0, color: UNKN, mistake: false}*/
-            board[x].shift()
+        history[cur_history] = {y: 0, type: ACTION_REMOVE_ROW, reason: REASON_USER, prev: []}
+        for(let x = 0; x < ncols; ++x)
+            history[cur_history].prev[x] = {color: board[x][0].color, number: board[x][0].number}
+        if(cur_history >= history.length) {
+            alert("error_len")
         }
-        nrows -= 1
-        if(edit_cell_y > 0) edit_cell_y -= 1
+        
+        history_forward()  // increments cur_history
+        
+        while(cur_history < history.length) {
+            history.pop()
+        }
+
         handle_board_after_change()
         render_board()
     }
 }
 
 function add_row_bottom() {
-    for(let x = 0; x < ncols; ++x) {
-        board[x][nrows] = {number: 0, color: UNKN, mistake: false}
+    history[cur_history] = {y: nrows, type: ACTION_ADD_ROW, reason: REASON_USER}
+    if(cur_history >= history.length) {
+        alert("error_len")
     }
-    nrows += 1
+    
+    history_forward()  // increments cur_history
+    
+    while(cur_history < history.length) {
+        history.pop()
+    }
+
     handle_board_after_change()
     render_board()
 }
 
 function remove_row_bottom() {
     if(nrows > MIN_NROWS) {
-        for(let x = 0; x < ncols; ++x) {
-            board[x].pop()
+        history[cur_history] = {y: nrows - 1, type: ACTION_REMOVE_ROW, reason: REASON_USER, prev: []}
+        for(let x = 0; x < ncols; ++x)
+            history[cur_history].prev[x] = {color: board[x][nrows - 1].color, number: board[x][nrows - 1].number}
+        if(cur_history >= history.length) {
+            alert("error_len")
         }
-        if(edit_cell_y === nrows - 1) edit_cell_y -= 1
-        nrows -= 1        
+        
+        history_forward()  // increments cur_history
+        
+        while(cur_history < history.length) {
+            history.pop()
+        }
+
         handle_board_after_change()
         render_board()
     }
 }
 
 function add_col_left() {
-    board.unshift([])
-    for(let y = 0; y < nrows; ++y) {
-        board[0][y] = {number: 0, color: UNKN, mistake: false}
+    history[cur_history] = {x: 0, type: ACTION_ADD_COL, reason: REASON_USER}
+    if(cur_history >= history.length) {
+        alert("error_len")
     }
-    ncols += 1
-    edit_cell_x += 1
+    
+    history_forward()  // increments cur_history
+    
+    while(cur_history < history.length) {
+        history.pop()
+    }
+
     handle_board_after_change()
     render_board()
 }
 
 function remove_col_left() {
     if(ncols > MIN_NCOLS) {
-        board.shift()
-        ncols -= 1
-        if(edit_cell_x > 0) edit_cell_x -= 1
+        history[cur_history] = {x: 0, type: ACTION_REMOVE_COL, reason: REASON_USER, prev: []}
+        for(let y = 0; y < nrows; ++y)
+            history[cur_history].prev[y] = {color: board[0][y].color, number: board[0][y].number}
+        if(cur_history >= history.length) {
+            alert("error_len")
+        }
+        
+        history_forward()  // increments cur_history
+        
+        while(cur_history < history.length) {
+            history.pop()
+        }
+
         handle_board_after_change()
         render_board()
     }
 }
 
 function add_col_right() {
-    board.push([])
-    for(let y = 0; y < nrows; ++y) {
-        board[ncols][y] = {number: 0, color: UNKN, mistake: false}
+    history[cur_history] = {x: ncols, type: ACTION_ADD_COL, reason: REASON_USER}
+    if(cur_history >= history.length) {
+        alert("error_len")
     }
-    ncols += 1
+    
+    history_forward()  // increments cur_history
+    
+    while(cur_history < history.length) {
+        history.pop()
+    }
+
     handle_board_after_change()
     render_board()
 }
 
 function remove_col_right() {
     if(ncols > MIN_NCOLS) {
-        board.pop()
-        if(edit_cell_x === ncols - 1) edit_cell_x -= 1
-        ncols -= 1
+        history[cur_history] = {x: ncols - 1, type: ACTION_REMOVE_COL, reason: REASON_USER, prev: []}
+        for(let y = 0; y < nrows; ++y)
+            history[cur_history].prev[y] = {color: board[ncols - 1][y].color, number: board[ncols - 1][y].number}
+        if(cur_history >= history.length) {
+            alert("error_len")
+        }
+        
+        history_forward()  // increments cur_history
+        
+        while(cur_history < history.length) {
+            history.pop()
+        }
+
         handle_board_after_change()
         render_board()
     }
@@ -746,7 +946,7 @@ function apply_string_returned_by_solver(s) {
             }
             const reason = t[5]
 
-            console.log(h)
+            console.log(parts[h+1])
             action_set_color(x, y, next, reason)
         }
 

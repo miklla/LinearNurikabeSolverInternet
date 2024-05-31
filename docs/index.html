@@ -69,11 +69,15 @@
       <button type="button" class="remove_add_edit_button" id="remove_row_bottom_button" onclick="remove_row_bottom()"><p>-</p></button>
     </div>
   </div>
-  <h2>Site is under construction</h2>
+  <button type="button" class="history_button" id="history_full_backward_button" onclick="(() => {while(cur_history > 0) {history_backward()};handle_board_after_change();render_board()})()"><<</button>
+  <button type="button" class="history_button" id="history_backward_button" onclick="(() => {history_backward();handle_board_after_change();render_board()})()"><</button>
+  <button type="button" class="history_button" id="history_forward_button" onclick="(() => {history_forward();handle_board_after_change();render_board()})()">></button>
+  <button type="button" class="history_button" id="history_full_forward_button" onclick="(() => {while(cur_history < history.length) {history_forward()};handle_board_after_change();render_board()})()">>></button>
   <div class="row">
     <div id="output"></div>
   </div>
   <button type="button" id="solve_button"><p>Solve</p></button>
+  <h2>Site is under construction 2024</h2>
 
   <!--<script src="a.out.js"></script>-->
   <script src="solver_web.js"></script>
