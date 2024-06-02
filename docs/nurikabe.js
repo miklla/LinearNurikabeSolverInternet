@@ -897,6 +897,66 @@ function remove_col_right() {
     }
 }
 
+function set_puzzle_very_easy() {
+    ncols = 3
+    nrows = 3
+    history = []
+    cur_history = 0
+    edit_cell_x = 0
+    edit_cell_y = 0
+    
+    for (let x = 0; x < ncols; ++x) {
+        board[x] = []
+        for (let y = 0; y < nrows; ++y) {
+            board[x][y] = {number: 0, color: UNKN, mistake: false}
+        }
+    }
+
+    board[0][0].number = 3
+    board[2][0].number = 2
+ 
+    for (let x = 0; x < ncols; ++x) {
+        for (let y = 0; y < nrows; ++y) {
+            if(board[x][y].number > 0) {
+                board[x][y].color = WHITE
+            }
+        }
+    }
+
+    set_mode(MODE_PLAY)
+}
+
+function set_puzzle_easy() {
+    ncols = 5
+    nrows = 5
+    history = []
+    cur_history = 0
+    edit_cell_x = 0
+    edit_cell_y = 0
+
+    for (let x = 0; x < ncols; ++x) {
+        board[x] = []
+        for (let y = 0; y < nrows; ++y) {
+            board[x][y] = {number: 0, color: UNKN, mistake: false}
+        }
+    }
+
+    board[3][0].number = 3
+    board[0][1].number = 2
+    board[4][3].number = 4
+    board[1][4].number = 1
+ 
+    for (let x = 0; x < ncols; ++x) {
+        for (let y = 0; y < nrows; ++y) {
+            if(board[x][y].number > 0) {
+                board[x][y].color = WHITE
+            }
+        }
+    }
+
+    set_mode(MODE_PLAY)
+}
+
 function serialize_board() {
     let string = ""
     string += nrows + '\n'
