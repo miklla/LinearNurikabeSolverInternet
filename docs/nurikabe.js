@@ -290,7 +290,7 @@ function history_forward() {
 
             ncols -= 1
         } else {
-            alert("history error")
+            alert("history error " + h.type)
         }
 
         cur_history += 1
@@ -316,7 +316,7 @@ function history_backward() {
             }
             board[h.x][h.y].number = h.prev
         } else if(h.type === ACTION_ADD_ROW) {
-            if(nrows <= MIN_NROWS) {
+            if(nrows <= MIN_NROWS + 1) {
                 alert("error4")
             }
             for(let x = 0; x < ncols; ++x) {
@@ -357,8 +357,49 @@ function history_backward() {
             }
 
             nrows += 1
+        } else if(h.type === ACTION_ADD_COL) {
+            if(ncols <= MIN_NCOLS + 1) {
+                alert("error5")
+            }
+            for(let y = 0; y < nrows; ++y) {
+                if(board[h.x][y].color != UNKN) {
+                    alert("error7")
+                }
+                if(board[h.x][y].number != 0) {
+                    alert("error8")
+                }
+            }
+
+            if(h.x === 0) {
+                board.shift()
+                if(edit_cell_x > 0) edit_cell_x -= 1
+            } else if(h.x === ncols - 1) {
+                board.pop()
+                if(edit_cell_x === ncols - 1) edit_cell_x -= 1
+            } else {
+                alert("error_col_remove")
+            }
+
+            ncols -= 1
+        } else if(h.type === ACTION_REMOVE_COL) {
+            if(h.x === 0) {
+                board.unshift([])
+                for(let y = 0; y < nrows; ++y) {
+                    board[0][y] = {number: h.prev[y].number, color: h.prev[y].color, mistake: false}
+                }
+                edit_cell_x += 1
+            } else if(h.x === ncols) {
+                board.push([])
+                for(let y = 0; y < nrows; ++y) {
+                    board[ncols][y] = {number: h.prev[y].number, color: h.prev[y].color, mistake: false}
+                }
+            } else {
+                alert("error_col_add")
+            }
+
+            ncols += 1
         } else {
-            alert("history error")
+            alert("history error " + h.type)
         }
     } else {  // cur_history <= 0
         if(cur_history < 0) {
@@ -971,6 +1012,11 @@ function serialize_board() {
             string += board[x][y].color
         string += '\n'
     }
+
+    const max_depth_selector = document.getElementById("max-depth")
+    const max_depth = max_depth_selector.options[max_depth_selector.selectedIndex].value;
+
+    string += max_depth + '\n'
 
     //alert(string)
 

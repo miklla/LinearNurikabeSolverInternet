@@ -70,6 +70,7 @@
     </div>
   </div>
   <button type="button" class="history_button" id="history_full_backward_button" onclick="(() => {while(cur_history > 0) {history_backward()};handle_board_after_change();render_board()})()"><<</button>
+  <button type="button" class="history_button" id="history_clear_button" onclick="(() => {while(cur_history > 0 && history[cur_history - 1].type === ACTION_COLOR && history[cur_history - 1].reason != REASON_USER) {history_backward()};handle_board_after_change();render_board()})()">C</button>
   <button type="button" class="history_button" id="history_backward_button" onclick="(() => {history_backward();handle_board_after_change();render_board()})()"><</button>
   <button type="button" class="history_button" id="history_forward_button" onclick="(() => {history_forward();handle_board_after_change();render_board()})()">></button>
   <button type="button" class="history_button" id="history_full_forward_button" onclick="(() => {while(cur_history < history.length) {history_forward()};handle_board_after_change();render_board()})()">>></button>
@@ -77,6 +78,13 @@
     <div id="output"></div>
   </div>
   <button type="button" id="solve_button"><p>Solve</p></button>
+  <t>max depth</t>
+  <select name="max_depth" id="max-depth">
+    <option value=0>0</option>
+    <option value=1>1</option>
+    <option selected value=2>2</option>
+    <option value=3>3</option>
+  </select>
   <h2>Site is under construction 2024</h2>
 
   <!--<script src="a.out.js"></script>-->
