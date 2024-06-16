@@ -998,6 +998,27 @@ function set_puzzle_easy() {
     set_mode(MODE_PLAY)
 }
 
+function clear_colors() {
+    for (let x = 0; x < ncols; ++x) {
+        for (let y = 0; y < nrows; ++y) {
+            if(board[x][y].number === 0 && board[x][y].color != UNKN) action_set_color(x, y, UNKN, REASON_USER)
+        }
+    }
+    handle_board_after_change()
+    render_board();
+}
+
+function clear_field() {
+    for (let x = 0; x < ncols; ++x) {
+        for (let y = 0; y < nrows; ++y) {
+            if(board[x][y].number > 0) action_set_number(x, y, 0)
+            if(board[x][y].color != UNKN) action_set_color(x, y, UNKN, REASON_USER)
+        }
+    }
+    handle_board_after_change()
+    render_board();
+}
+
 function serialize_board() {
     let string = ""
     string += nrows + '\n'

@@ -170,6 +170,10 @@ li.dropdown {
     /*line-height: 0px;*/
 }
 
+.remove_add_edit_button:hover {
+    background-color:rgb(255, 145, 0);
+}
+
 /*.remove_add_edit_button p {
     font-size: x-large;
     font-family: tahoma;
@@ -181,8 +185,8 @@ li.dropdown {
 
 .history_button {
     /*display: inline;*/
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     margin: 5px;
     /*text-align: center;
     vertical-align: middle;*/
