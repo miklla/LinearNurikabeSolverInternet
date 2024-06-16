@@ -998,6 +998,41 @@ function set_puzzle_easy() {
     set_mode(MODE_PLAY)
 }
 
+function set_puzzle_medium() {
+    ncols = 8
+    nrows = 8
+    history = []
+    cur_history = 0
+    edit_cell_x = 0
+    edit_cell_y = 0
+
+    for (let x = 0; x < ncols; ++x) {
+        board[x] = []
+        for (let y = 0; y < nrows; ++y) {
+            board[x][y] = {number: 0, color: UNKN, mistake: false}
+        }
+    }
+
+    board[0][0].number = 7
+    board[6][0].number = 4
+    board[0][3].number = 4
+    board[2][4].number = 3
+    board[0][5].number = 4
+    board[7][5].number = 3
+    board[3][7].number = 3
+    board[6][7].number = 4
+ 
+    for (let x = 0; x < ncols; ++x) {
+        for (let y = 0; y < nrows; ++y) {
+            if(board[x][y].number > 0) {
+                board[x][y].color = WHITE
+            }
+        }
+    }
+
+    set_mode(MODE_PLAY)
+}
+
 function clear_colors() {
     for (let x = 0; x < ncols; ++x) {
         for (let y = 0; y < nrows; ++y) {
