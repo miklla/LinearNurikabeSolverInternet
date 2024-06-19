@@ -13,7 +13,7 @@
 <body>
   <h1>Linear Nurikabe Solver</h1>
   <div id="menuBar">
-      <ul>
+      <!--<ul>
           <li class="dropdown">
             <span class="dropbtn">Import / Export</span>
             <div class="dropdown-content">
@@ -41,11 +41,96 @@
           <li class="dropdown">
             <span class="dropbtn">Help</span>
             <div class="dropdown-content">
-              <span>Rules</span>
-              <span>About</span>
+              <span>
+                <a>Rules</a>
+                <div class="dropdown-subcontent">
+                  <span>abc</span>
+                </div>
+              </span>
+              <span>
+                <a>About</a>
+                <div class="dropdown-subcontent">
+                  <span>
+                    def
+                    ght
+                  </span>
+                </div>
+              </span>
             </div>
           </li>
         </ul>
+      -->
+
+      <ul>
+        <li class="dropdown">
+          <div class="dropbtn">Import / Export</div>
+          <div class="dropdown-content">
+            <div class="nested-dropdown">
+              <t>Share board</t>
+            </div>
+            <div class="nested-dropdown">
+              <t>Import from janko.at</t>
+            </div>
+            <div class="nested-dropdown">
+              <t>Import from puzz.link</t>
+            </div>
+            <div class="nested-dropdown">
+              <t>Export to puzz.link</t>
+            </div>
+          </div>
+        </li>
+        <li class="dropdown">
+          <div class="dropbtn">Edit</div>
+          <div class="dropdown-content">
+            <div class="nested-dropdown">
+              <t onclick="clear_colors()">Clear colors</t>
+            </div>
+            <div class="nested-dropdown">
+              <t onclick="clear_field()">Clear everything</t>
+            </div>
+          </div>
+        </li>
+        <li class="dropdown">
+          <div class="dropbtn">Examples</div>
+          <div class="dropdown-content">
+            <div class="nested-dropdown">
+              <t onclick="set_puzzle_very_easy()">Very easy</t>
+            </div>
+            <div class="nested-dropdown">
+              <t onclick="set_puzzle_easy()">Easy (janko106)</t>
+            </div>
+            <div class="nested-dropdown">
+              <t onclick="set_puzzle_medium()">Medium (janko442)</t>
+            </div>
+          </div>
+        </li>
+        <li class="dropdown">
+          <div class="dropbtn">Help</div>
+          <div class="dropdown-content">
+            <div class="nested-dropdown">
+                <t>Rules</t>
+                <div class="nested-dropdown-content">
+                    <t>Two same-color cells are considered "connected" if they are adjacent vertically or horizontally, but not diagonally.
+                      Connected white cells form "islands", while connected black cells form the "sea".
+                      The challenge is to paint each cell black or white, subject to the following rules:
+                      <p>1. Each numbered cell is an island cell, the number in it is the number of cells in that island.</p>
+                      <p>2.Each island must contain exactly one numbered cell.</p>
+                      <p>3.There must be only one sea, which is not allowed to contain "pools", i.e. 2×2 areas of black cells.</p>
+                      <a href="https://en.wikipedia.org/wiki/Nurikabe_(puzzle)" target="_blank" rel="noopener noreferrer">wiki</a>
+                    </t>
+                </div>
+            </div>
+            <div class="nested-dropdown">
+              <t>About</t>
+              <div class="nested-dropdown-content">
+                  <t>This site is for solving nurikabe puzzles. Send bugs, issues, ideas, any feedback to "mikl2sch + standard gmail com ending". Also I will appreciate any puzzle that my solver can't solve with depth 2 or can't solve at all.
+                    <p>Author: Lysov Mikhail</p>
+                  </t>
+              </div>
+          </div>
+          </div>
+        </li>
+      </ul>
   </div>
   <div>
     <button type="button" class="mode_button" id="edit_mode_button" onclick="set_mode(MODE_EDIT)">
@@ -86,7 +171,7 @@
   </div>
   <button type="button" id="solve_button"><p>Solve</p></button>
   <t>max depth</t>
-  <select name="max_depth" id="max-depth">
+  <select name="max_depth" id="max-depth" title="max--depth">
     <option value=0>0</option>
     <option value=1>1</option>
     <option selected value=2>2</option>
