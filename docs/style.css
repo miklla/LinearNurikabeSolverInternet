@@ -16,6 +16,7 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    overflow-x: visible;
 }
 
 .canvas_area_ver {
@@ -23,6 +24,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow-x: visible;
 }
 
 .board {
@@ -31,6 +33,7 @@ body {
     border: 5px solid #000000;
     border-collapse: collapse;
     border-radius: 5px;
+    white-space: nowrap;
 }
 .solved_board_incorrect {
     border: 5px solid red;
@@ -50,7 +53,6 @@ body {
     cursor: pointer;
     -webkit-user-select: none;
     user-select: none;
- 
     /* Default color for unrevealed tiles */
     background-color: #a8a7a7;
  
@@ -264,6 +266,7 @@ span:hover>.dropdown-subcontent {
     height: 50px;
     margin: 15px;
     display: flex;
+    border-style: solid;
     align-items: center;
     justify-content: center;
     -webkit-user-select: none;
