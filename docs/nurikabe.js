@@ -1145,3 +1145,5 @@ getHelloMessage = Module.cwrap('getHelloMessage', 'string', ['string'])
 
 alert(getHelloMessage('asdasda'))*/
 //serialize_board()
+
+//[].forEach.call(document.querySelectorAll("*"),function(a){a.style.outline="1px solid #"+(~~(Math.random()*(1<<24))).toString(16)})  // debug all elements

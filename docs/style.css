@@ -4,27 +4,28 @@ body {
 }
 
 .canvas {
-    display: flexbox;
+    display: block;
     flex-direction: column;
-    flex-wrap:nowrap;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
+    /*overflow-x: visible;*/
 }
 
 .canvas_area_hor {
     display: flex;
     flex-direction: row;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    overflow-x: visible;
 }
 
 .canvas_area_ver {
     display: flex;
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    overflow-x: visible;
 }
 
 .board {

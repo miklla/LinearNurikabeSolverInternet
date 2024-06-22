@@ -115,7 +115,7 @@
                       The challenge is to paint each cell black or white, subject to the following rules:
                       <p>1. Each numbered cell is an island cell, the number in it is the number of cells in that island.</p>
                       <p>2.Each island must contain exactly one numbered cell.</p>
-                      <p>3.There must be only one sea, which is not allowed to contain "pools", i.e. 2×2 areas of black cells.</p>
+                      <p>3.There must be only one sea, which is not allowed to contain "pools", i.e. 2&#215;2 areas of black cells.</p>
                       <a href="https://en.wikipedia.org/wiki/Nurikabe_(puzzle)" target="_blank" rel="noopener noreferrer">wiki</a>
                     </t>
                 </div>
@@ -143,22 +143,22 @@
   <div class="canvas" id="canvas">
     <div class="canvas_area_hor">
       <button type="button" class="remove_add_edit_button" id="add_row_top_button" onclick="add_row_top()"><p>+</p></button>
-      <button type="button" class="remove_add_edit_button" id="remove_row_top_button" onclick="remove_row_top()"><p>-</p></button>
+      <button type="button" class="remove_add_edit_button" id="remove_row_top_button" onclick="remove_row_top()"><p>&#8722;</p></button>
     </div>
     <div class="canvas_area_hor">
       <div class="canvas_area_ver">
         <button type="button" class="remove_add_edit_button" id="add_col_left_button" onclick="add_col_left()"><p>+</p></button>
-        <button type="button" class="remove_add_edit_button" id="remove_col_left_button" onclick="remove_col_left()"><p>-</p></button>
+        <button type="button" class="remove_add_edit_button" id="remove_col_left_button" onclick="remove_col_left()"><p>&#8722;</p></button>
       </div>
       <div class="board" id="gameBoard"></div>
       <div class="canvas_area_ver">
         <button type="button" class="remove_add_edit_button" id="add_col_right_button" onclick="add_col_right()"><p>+</p></button>
-        <button type="button" class="remove_add_edit_button" id="remove_col_right_button" onclick="remove_col_right()"><p>-</p></button>
+        <button type="button" class="remove_add_edit_button" id="remove_col_right_button" onclick="remove_col_right()"><p>&#8722;</p></button>
       </div>
     </div>
     <div class="canvas_area_hor">
       <button type="button" class="remove_add_edit_button" id="add_row_bottom_button" onclick="add_row_bottom()"><p>+</p></button>
-      <button type="button" class="remove_add_edit_button" id="remove_row_bottom_button" onclick="remove_row_bottom()"><p>-</p></button>
+      <button type="button" class="remove_add_edit_button" id="remove_row_bottom_button" onclick="remove_row_bottom()"><p>&#8722;</p></button>
     </div>
   </div>
   <button type="button" class="history_button" id="history_full_backward_button" onclick="(() => {while(cur_history > 0) {history_backward()};handle_board_after_change();render_board()})()"><<</button>
