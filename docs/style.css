@@ -1,15 +1,17 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
+    overflow-x: scroll;
 }
 
 .canvas {
-    display: block;
+    display: flex;
     flex-direction: column;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
+    /*flex-wrap: nowrap;*/
     align-items: center;
     justify-content: center;
-    /*overflow-x: visible;*/
+    overflow-x: auto;
 }
 
 .canvas_area_hor {
@@ -29,7 +31,7 @@ body {
 }
 
 .board {
-    display: block;
+    display: inline-block;
     margin: 0px;
     border: 5px solid #000000;
     border-collapse: collapse;
@@ -295,8 +297,12 @@ span:hover>.dropdown-subcontent {
     margin: 5px;
     /*text-align: center;
     vertical-align: middle;*/
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 #solve_button {
-    margin: 5px
+    margin: 5px;
+    -webkit-user-select: none;
+    user-select: none;
 }
