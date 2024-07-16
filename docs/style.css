@@ -244,10 +244,31 @@ span:hover>.dropdown-subcontent {
     white-space: normal;
 }
 
+.nested-dropdown-content t:hover {
+    background-color: #ffffff;
+}
+
 /* Show the nested dropdown menu when hovering over the parent item */
 .nested-dropdown:hover
     .nested-dropdown-content {
     display: block;
+}
+
+.button-inside-dropdown {
+    width: 180px;
+    height: 30px;
+    border-radius: 15px;
+    background-color:#f0f0f0;
+    font-size: medium;
+}
+
+.button-inside-dropdown:hover {
+    background-color:rgb(255, 145, 0);
+}
+
+.input-inside-dropdown {
+    width: 230px;
+    font-size: medium;
 }
 
 .mode_button {

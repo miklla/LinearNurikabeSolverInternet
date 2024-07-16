@@ -642,7 +642,7 @@ function set_mode(mode) {
                     board[x][y].mistake = true;
                     board[x][y + 1].mistake = true;
                     render_board()
-                    return
+                    return false
                 }
             }
         }
@@ -652,7 +652,7 @@ function set_mode(mode) {
                     board[x][y].mistake = true;
                     board[x + 1][y].mistake = true;
                     render_board()
-                    return
+                    return false
                 }
             }
         }
@@ -717,6 +717,8 @@ function set_mode(mode) {
 
     handle_board_after_change();
     render_board();
+
+    return true
 }
 
 function keyboard_interceptor_in_edit_mode(event) {
@@ -1117,13 +1119,278 @@ function apply_string_returned_by_solver(s) {
     }
 }
 
+function get_puzzlink() {
+    let string = "https://puzz.link/p?nurikabe/"
+    string += ncols
+    string += "/"
+    string += nrows
+    string += "/"
+    let nempty = 0
+    for(let y = 0; y < nrows; ++y) {
+        for(let x = 0; x < ncols; ++x) {
+            if(board[x][y].number === 0) {
+                nempty += 1
+            } else {
+                while(nempty >= 20) {
+                    string += "z"
+                    nempty -= 20
+                }
+                if(nempty > 0) {
+                    string += String.fromCharCode(102 + nempty)  // 'f'+
+                    nempty = 0
+                }
+                if(board[x][y].number < 16) {
+                    string += single_digit_to_hex(board[x][y].number)
+                } else if(board[x][y].number <= 255) {
+                    const first_digit = board[x][y].number / 16
+                    const last_digit = board[x][y].number % 16
+                    string += "-" + single_digit_to_hex(first_digit) + single_digit_to_hex(last_digit)
+                } else {
+                    const first_digit = board[x][y].number / 256
+                    const middle_digit = (board[x][y].number / 16) % 16
+                    const last_digit = board[x][y].number % 16
+                    string += "+" + single_digit_to_hex(first_digit) + single_digit_to_hex(middle_digit) + single_digit_to_hex(last_digit)
+                }
+            }
+        }
+    }
+
+    while(nempty >= 20) {
+        string += "z"
+        nempty -= 20
+    }
+    if(nempty > 0) {
+        string += String.fromCharCode(102 + nempty)  // 'f'+
+    }
+
+    return string
+}
+
+function single_digit_to_hex (n) {
+    if(n < 0 || n >= 16) {
+        alert("hex digit error")
+    }
+    if(n < 10) {
+        return String.fromCharCode(48 + n)  // '0'+
+    } else {
+        return String.fromCharCode(87 + n)  // 'a'-10+
+    }
+}
+
+function input_puzzlink_click() {
+    const copy_text = document.getElementById("input_puzzlink")
+    copy_text.select()
+    copy_text.setSelectionRange(0, 99999)
+    import_from_puzzlink(copy_text.value)
+}
+
+function import_from_puzzlink (s) {
+    const start = s.slice(0, 29)
+    if(start != "https://puzz.link/p?nurikabe/") {
+        alert("start mismatch")
+        return false
+    }
+    const end = s.slice(29)
+    const parts = end.split('/')
+    if(parts.length != 3) {
+        alert("link must contain 3 parts after first 29 characters, but it contains " + parts.length)
+        return false
+    }
+    const link_ncols = Number(parts[0])
+    if(link_ncols < MIN_NCOLS) {
+        alert("too low ncols")
+        return false
+    }
+    const link_nrows = Number(parts[1])
+    if(link_nrows < MIN_NROWS) {
+        alert("too low nrows")
+        return false
+    }
+    const field_str = parts[2]
+    let cells_count = 0
+    for(let i = 0; i < field_str.length; i += 1) {
+        if(field_str[i] >= '0' && field_str[i] <= '9') {
+            cells_count += 1
+        } else if(field_str[i] >= 'a' && field_str[i] <= 'f') {
+            cells_count += 1
+        } else if(field_str[i] >= 'g' && field_str[i] <= 'z') {
+            cells_count += field_str.charCodeAt(i) - 102  // 'f' = 102
+        } else if(field_str[i] == '-') {
+            if(i + 2 >= field_str.length) {
+                alert("There must be at least 2 characters after '-'")
+                return false
+            }
+            if(!(field_str[i + 1] >= 'a' && field_str[i + 1] <= 'f') && !((field_str[i + 1] >= '0' && field_str[i + 1] <= '9'))) {
+                alert("first character after '-' must be hex but it is " + field_str[i + 1])
+                return false
+            }
+            if(!(field_str[i + 2] >= 'a' && field_str[i + 2] <= 'f') && !((field_str[i + 2] >= '0' && field_str[i + 2] <= '9'))) {
+                alert("first character after '-' must be hex but it is " + field_str[i + 2])
+                return false
+            }
+            cells_count += 1
+            i += 2
+        } else if(field_str[i] == '+') {
+            if(i + 3 >= field_str.length) {
+                alert("There must be at least 3 characters after '+'")
+                return false
+            }
+            if(!(field_str[i + 1] >= 'a' && field_str[i + 1] <= 'f') && !((field_str[i + 1] >= '0' && field_str[i + 1] <= '9'))) {
+                alert("first character after '+' must be hex but it is " + field_str[i + 1])
+                return false
+            }
+            if(!(field_str[i + 2] >= 'a' && field_str[i + 2] <= 'f') && !((field_str[i + 2] >= '0' && field_str[i + 2] <= '9'))) {
+                alert("first character after '+' must be hex but it is " + field_str[i + 2])
+                return false
+            }
+            if(!(field_str[i + 3] >= 'a' && field_str[i + 3] <= 'f') && !((field_str[i + 3] >= '0' && field_str[i + 3] <= '9'))) {
+                alert("first character after '+' must be hex but it is " + field_str[i + 3])
+                return false
+            }
+            cells_count += 1
+            i += 3
+        } else if(field_str[i] == '.') {
+            alert("nurikabe variant with '?' cells is not supported")
+            return false
+        } else {
+            alert("unrecognized symbol in link: " + field_str[i])
+            return false
+        }
+    }
+
+    if(cells_count != link_ncols * link_nrows) {
+        alert("number of cells mismatch in link: " + parts[0] + '*' + parts[1] + "!=" + String(cells_count))
+        return false
+    }
+
+    ncols = link_ncols
+    nrows = link_nrows
+    history = []
+    cur_history = 0
+    edit_cell_x = 0
+    edit_cell_y = 0
+
+    for (let x = 0; x < ncols; ++x) {
+        board[x] = []
+        for (let y = 0; y < nrows; ++y) {
+            board[x][y] = {number: 0, color: UNKN, mistake: false}
+        }
+    }
+
+    cells_count = 0
+    for(let i = 0; i < field_str.length; i += 1) {
+        if(field_str[i] >= '0' && field_str[i] <= '9') {
+            board[cells_count % ncols][Math.floor(cells_count / ncols)].number = field_str.charCodeAt(i) - 48  // '0' = 48
+            cells_count += 1
+        } else if(field_str[i] >= 'a' && field_str[i] <= 'f') {
+            board[cells_count % ncols][Math.floor(cells_count / ncols)].number = field_str.charCodeAt(i) - 87  // 'a' - 10 = 87
+            cells_count += 1
+        } else if(field_str[i] >= 'g' && field_str[i] <= 'z') {
+            cells_count += field_str.charCodeAt(i) - 102  // 'f' = 102
+        } else if(field_str[i] == '-') {
+            let number = 0
+            if(field_str[i + 1] >= '0' && field_str[i + 1] <= '9') {
+                number += 16 * (field_str.charCodeAt(i + 1) - 48)  // '0' = 48
+            } else {
+                number += 16 * (field_str.charCodeAt(i + 1) - 87)  // 'a' - 10 = 87
+            }
+            if(field_str[i + 2] >= '0' && field_str[i + 2] <= '9') {
+                number += field_str.charCodeAt(i + 2) - 48  // '0' = 48
+            } else {
+                number += field_str.charCodeAt(i + 2) - 87  // 'a' - 10 = 87
+            }
+            board[cells_count % ncols][Math.floor(cells_count / ncols)].number = number
+            cells_count += 1
+            i += 2
+        } else if(field_str[i] == '+') {
+            let number = 0
+            if(field_str[i + 1] >= '0' && field_str[i + 1] <= '9') {
+                number += 256 * (field_str.charCodeAt(i + 1) - 48)  // '0' = 48
+            } else {
+                number += 256 * (field_str.charCodeAt(i + 1) - 87)  // 'a' - 10 = 87
+            }
+            if(field_str[i + 2] >= '0' && field_str[i + 2] <= '9') {
+                number += 16 * (field_str.charCodeAt(i + 2) - 48)  // '0' = 48
+            } else {
+                number += 16 * (field_str.charCodeAt(i + 2) - 87)  // 'a' - 10 = 87
+            }
+            if(field_str[i + 3] >= '0' && field_str[i + 3] <= '9') {
+                number += field_str.charCodeAt(i + 3) - 48  // '0' = 48
+            } else {
+                number += field_str.charCodeAt(i + 3) - 87  // 'a' - 10 = 87
+            }
+            board[cells_count % ncols][Math.floor(cells_count / ncols)].number = number
+            cells_count += 1
+            i += 3
+        }
+    }
+
+    for (let x = 0; x < ncols; ++x) {
+        for (let y = 0; y < nrows; ++y) {
+            if(board[x][y].number > 0) {
+                board[x][y].color = WHITE
+            }
+        }
+    }
+
+    const r = set_mode(MODE_PLAY)
+    if(!r) {  // 2 neighboring numbered cells are supported by puzzlink for some reason
+        set_mode(MODE_EDIT)
+    }
+
+    return true
+}
+
+function load_janko_click() {
+    /*const copy_text = document.getElementById("input_janko")
+    copy_text.select()
+    let janko_index_str = copy_text.value
+    const janko_index_number = Number(janko_index_str)
+    if(janko_index_number <= 0 || janko_index_number > 9999) {
+        alert("puzzle index must be >= 1 and <= 9999")
+        return false
+    }
+    if(janko_index_str.length > 4) {
+        alert("puzzle index can not contain more than 4 characters")
+        return false
+    }
+    while(janko_index_str.length < 4) {
+        janko_index_str = '0' + janko_index_str
+    }
+    alert(janko_index_str)
+
+    const janko_url = "https://www.janko.at/Raetsel/Nurikabe/" + janko_index_str + ".a.htm"
+
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", janko_url, true);
+
+    xhr.timeout = 2000; // time in milliseconds
+
+    xhr.onload = function() {
+        alert( this.responseText );
+    }
+      
+    xhr.onerror = function() {
+        alert( 'Error ' + this.status );
+    }
+      
+    xhr.send(null);*/
+    /*const fetchPromise = fetch(janko_url, 
+        {mode: 'no-cors'});
+
+    fetchPromise
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data);
+    });*/
+}
+
 // running code
 
 initialize_board();
 set_mode(MODE_EDIT);
 // handle_board_after_change();
 // render_board();
-
 
 
 /*Module['onRuntimeInitialized'] = onRuntimeInitialized;

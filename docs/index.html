@@ -13,54 +13,6 @@
 <body>
   <h1>Linear Nurikabe Solver</h1>
   <div id="menuBar">
-      <!--<ul>
-          <li class="dropdown">
-            <span class="dropbtn">Import / Export</span>
-            <div class="dropdown-content">
-              <span>Share board</span>
-              <span>Import from janko.at</span>
-              <span>Import from puzz.link</span>
-              <span>Export to puzz.link</span>
-            </div>
-          </li>
-          <li class="dropdown">
-            <span class="dropbtn">Edit</span>
-            <div class="dropdown-content">
-              <span onclick="clear_colors()">Clear colors</span>
-              <span onclick="clear_field()">Clear everything</span>
-            </div>
-          </li>
-          <li class="dropdown">
-            <span class="dropbtn">Examples</span>
-            <div class="dropdown-content">
-              <span onclick="set_puzzle_very_easy()">Very easy</span>
-              <span onclick="set_puzzle_easy()">Easy (janko106)</span>
-              <span onclick="set_puzzle_medium()">Medium (janko442)</span>
-            </div>
-          </li>
-          <li class="dropdown">
-            <span class="dropbtn">Help</span>
-            <div class="dropdown-content">
-              <span>
-                <a>Rules</a>
-                <div class="dropdown-subcontent">
-                  <span>abc</span>
-                </div>
-              </span>
-              <span>
-                <a>About</a>
-                <div class="dropdown-subcontent">
-                  <span>
-                    def
-                    ght
-                  </span>
-                </div>
-              </span>
-            </div>
-          </li>
-        </ul>
-      -->
-
       <ul>
         <li class="dropdown">
           <div class="dropbtn">Import / Export</div>
@@ -70,12 +22,39 @@
             </div>
             <div class="nested-dropdown">
               <t>Import from janko.at</t>
+              <div class="nested-dropdown-content">
+                <t>
+                  <input type="number" min = "1" max = "9999" placeholder="Enter index of nurikabe puzzle" class="input-inside-dropdown" id="input_janko">
+                  <br> <br>
+                  and press button below
+                  <br> <br>
+                  <button type="button" class="button-inside-dropdown" onclick="load_janko_click()">load</button>
+                </t>
+              </div>
             </div>
             <div class="nested-dropdown">
               <t>Import from puzz.link</t>
+              <div class="nested-dropdown-content">
+                <t>
+                  paste/type URL<br> <br>
+                  <input type="url" value="https://puzz.link/p?nurikabe/" class="input-inside-dropdown" id="input_puzzlink">
+                  <br> <br>
+                  and press button below
+                  <br> <br>
+                  <button type="button" class="button-inside-dropdown" onclick="input_puzzlink_click()">load</button>
+                </t>
+              </div>
             </div>
             <div class="nested-dropdown">
               <t>Export to puzz.link</t>
+              <div class="nested-dropdown-content">
+                <t>
+                  <button type="button" class="button-inside-dropdown" onclick="navigator.clipboard.writeText(get_puzzlink())">copy to clipboard</button>
+                  <br>
+                  <br>
+                  <button type="button"  class="button-inside-dropdown" onclick="window.open(get_puzzlink(), '_blank')">go to puzzlink</button>
+                </t>
+              </div>
             </div>
           </div>
         </li>
@@ -124,7 +103,7 @@
               <t>About</t>
               <div class="nested-dropdown-content">
                   <t>This site is for solving nurikabe puzzles. Send bugs, issues, ideas, any feedback to "mikl2sch + standard gmail com ending". Also I will appreciate any puzzle that my solver can't solve with depth 2 or can't solve at all.
-                    <p>Author: Lysov Mikhail</p>
+                    <p>Author: Mikhail Lysov</p>
                   </t>
               </div>
           </div>
