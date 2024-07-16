@@ -1342,7 +1342,7 @@ function import_from_puzzlink (s) {
 }
 
 function load_janko_click() {
-    /*const copy_text = document.getElementById("input_janko")
+    const copy_text = document.getElementById("input_janko")
     copy_text.select()
     let janko_index_str = copy_text.value
     const janko_index_number = Number(janko_index_str)
@@ -1357,9 +1357,11 @@ function load_janko_click() {
     while(janko_index_str.length < 4) {
         janko_index_str = '0' + janko_index_str
     }
-    alert(janko_index_str)
 
-    const janko_url = "https://www.janko.at/Raetsel/Nurikabe/" + janko_index_str + ".a.htm"
+    //const janko_url = "https://www.janko.at/Raetsel/Nurikabe/" + janko_index_str + ".a.htm"
+    const janko_url = "https://github.com/miklla/LinearNurikabeSolverInternet/janko/" + janko_index_number + ".janko"
+
+    alert(janko_url)
 
     const xhr = new XMLHttpRequest();
     xhr.open("GET", janko_url, true);
@@ -1374,7 +1376,7 @@ function load_janko_click() {
         alert( 'Error ' + this.status );
     }
       
-    xhr.send(null);*/
+    xhr.send(null);
     /*const fetchPromise = fetch(janko_url, 
         {mode: 'no-cors'});
 
