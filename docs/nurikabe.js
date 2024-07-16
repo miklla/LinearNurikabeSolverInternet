@@ -1358,10 +1358,8 @@ function load_janko_click() {
         janko_index_str = '0' + janko_index_str
     }
 
-    //const janko_url = "https://www.janko.at/Raetsel/Nurikabe/" + janko_index_str + ".a.htm"
-    const janko_url = "https://github.com/miklla/LinearNurikabeSolverInternet/janko/" + janko_index_number + ".janko"
-
-    alert(janko_url)
+    //const janko_url = "https://www.janko.at/Raetsel/Nurikabe/" + janko_index_str + ".a.htm"  // CORS - blocked, not usable without proxy
+    const janko_url = "https://raw.githubusercontent.com/miklla/LinearNurikabeSolverInternet/main/janko/" + janko_index_number + ".janko"  // had to replace with raws of files on github
 
     const xhr = new XMLHttpRequest();
     xhr.open("GET", janko_url, true);
@@ -1369,7 +1367,57 @@ function load_janko_click() {
     xhr.timeout = 2000; // time in milliseconds
 
     xhr.onload = function() {
-        alert( this.responseText );
+        if(xhr.status != 200) {
+            alert("Request failed with status " + xhr.status)
+            return false
+        }
+        const parts = this.responseText.split('\n');
+        let p = 0
+        for(; p < parts.length; ++p) {
+            const slice4 = parts[p].slice(0, 4)
+            if(slice4 == "rows") {
+                nrows = Number(parts[p].slice(5))
+            } else if(slice4 == "cols") {
+                ncols = Number(parts[p].slice(5))
+            } else if(slice4 == "size") {
+                nrows = Number(parts[p].slice(5))
+                ncols = nrows
+            } else if(parts[p].slice(0, 7) == "problem" || parts[p].slice(0, 9) == "[problem]") {
+                break
+            }
+        }
+        
+        history = []
+        cur_history = 0
+        edit_cell_x = 0
+        edit_cell_y = 0
+
+        for (let x = 0; x < ncols; ++x) {
+            board[x] = []
+            for (let y = 0; y < nrows; ++y) {
+                board[x][y] = {number: 0, color: UNKN, mistake: false}
+            }
+        }
+
+        p += 1
+        for(let y = 0; y < nrows; ++y) {
+            const rrr = parts[p + y].split(' ')
+            for(let x = 0; x < ncols; ++x) {
+                if(rrr[x] != '-') {
+                    board[x][y].number = Number(rrr[x])
+                }
+            }
+        }
+
+        for (let x = 0; x < ncols; ++x) {
+            for (let y = 0; y < nrows; ++y) {
+                if(board[x][y].number > 0) {
+                    board[x][y].color = WHITE
+                }
+            }
+        }
+    
+        const r = set_mode(MODE_PLAY)
     }
       
     xhr.onerror = function() {
@@ -1377,14 +1425,6 @@ function load_janko_click() {
     }
       
     xhr.send(null);
-    /*const fetchPromise = fetch(janko_url, 
-        {mode: 'no-cors'});
-
-    fetchPromise
-    .then((response) => response.json())
-    .then((data) => {
-        console.log(data);
-    });*/
 }
 
 // running code
