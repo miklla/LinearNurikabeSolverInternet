@@ -722,76 +722,78 @@ function set_mode(mode) {
 }
 
 function keyboard_interceptor_in_edit_mode(event) {
-    if(event.key >= "0" && event.key <= "9") {
-        const integer = Number(event.key)
-        if(edit_cell_x < 0 || edit_cell_x >= ncols || edit_cell_y < 0 || edit_cell_y >= nrows) {
-            alert("err2")
-        }
-        const old_number = board[edit_cell_x][edit_cell_y].number
-        if(old_number < 0 || old_number >= 1000) {
-            alert("err4")
-        }
-
-        let new_number = old_number * 10 + integer
-        if(new_number >= 1000) {
-            new_number = integer
-        }
-
-        if(board[edit_cell_x][edit_cell_y].color != WHITE && new_number != 0) {
-            action_set_color(edit_cell_x, edit_cell_y, WHITE, REASON_USER)
-        }
-        if(new_number != old_number) {
-            action_set_number(edit_cell_x, edit_cell_y, new_number)
-        }
-        if(new_number === 0 && board[edit_cell_x][edit_cell_y].color != UNKN) {
-            action_set_color(edit_cell_x, edit_cell_y, UNKN, REASON_USER)
-        }
-
-        handle_board_after_change()
-        render_board();
-    } else if(event.key === "Delete") {
-        if(board[edit_cell_x][edit_cell_y].number > 0) {
-            action_set_number(edit_cell_x, edit_cell_y, 0)
-            action_set_color(edit_cell_x, edit_cell_y, UNKN, REASON_USER)
-
-            handle_board_after_change()
-            render_board();
-        }
-    } else if(event.key === "Backspace") {
-        if(board[edit_cell_x][edit_cell_y].number > 0) {
+    if(document.activeElement.id != "input_janko" && document.activeElement.id != "input_puzzlink") {  // exclude input elements
+        if(event.key >= "0" && event.key <= "9") {
+            const integer = Number(event.key)
+            if(edit_cell_x < 0 || edit_cell_x >= ncols || edit_cell_y < 0 || edit_cell_y >= nrows) {
+                alert("err2")
+            }
             const old_number = board[edit_cell_x][edit_cell_y].number
-            const new_number = Math.floor(old_number / 10)
-            action_set_number(edit_cell_x, edit_cell_y, new_number)
-            if(new_number == 0) {
+            if(old_number < 0 || old_number >= 1000) {
+                alert("err4")
+            }
+
+            let new_number = old_number * 10 + integer
+            if(new_number >= 1000) {
+                new_number = integer
+            }
+
+            if(board[edit_cell_x][edit_cell_y].color != WHITE && new_number != 0) {
+                action_set_color(edit_cell_x, edit_cell_y, WHITE, REASON_USER)
+            }
+            if(new_number != old_number) {
+                action_set_number(edit_cell_x, edit_cell_y, new_number)
+            }
+            if(new_number === 0 && board[edit_cell_x][edit_cell_y].color != UNKN) {
                 action_set_color(edit_cell_x, edit_cell_y, UNKN, REASON_USER)
             }
 
             handle_board_after_change()
             render_board();
-        }
-    } else if(event.key === "ArrowLeft") {
-        if(edit_cell_x > 0) {
-            edit_cell_x -= 1;
-            handle_board_after_change()
-            render_board();
-        }
-    } else if(event.key === "ArrowRight") {
-        if(edit_cell_x < ncols - 1) {
-            edit_cell_x += 1;
-            handle_board_after_change()
-            render_board();
-        }
-    } else if(event.key === "ArrowUp") {
-        if(edit_cell_y > 0) {
-            edit_cell_y -= 1;
-            handle_board_after_change()
-            render_board();
-        }
-    } else if(event.key === "ArrowDown") {
-        if(edit_cell_y < nrows - 1) {
-            edit_cell_y += 1;
-            handle_board_after_change()
-            render_board();
+        } else if(event.key === "Delete") {
+            if(board[edit_cell_x][edit_cell_y].number > 0) {
+                action_set_number(edit_cell_x, edit_cell_y, 0)
+                action_set_color(edit_cell_x, edit_cell_y, UNKN, REASON_USER)
+
+                handle_board_after_change()
+                render_board();
+            }
+        } else if(event.key === "Backspace") {
+            if(board[edit_cell_x][edit_cell_y].number > 0) {
+                const old_number = board[edit_cell_x][edit_cell_y].number
+                const new_number = Math.floor(old_number / 10)
+                action_set_number(edit_cell_x, edit_cell_y, new_number)
+                if(new_number == 0) {
+                    action_set_color(edit_cell_x, edit_cell_y, UNKN, REASON_USER)
+                }
+
+                handle_board_after_change()
+                render_board();
+            }
+        } else if(event.key === "ArrowLeft") {
+            if(edit_cell_x > 0) {
+                edit_cell_x -= 1;
+                handle_board_after_change()
+                render_board();
+            }
+        } else if(event.key === "ArrowRight") {
+            if(edit_cell_x < ncols - 1) {
+                edit_cell_x += 1;
+                handle_board_after_change()
+                render_board();
+            }
+        } else if(event.key === "ArrowUp") {
+            if(edit_cell_y > 0) {
+                edit_cell_y -= 1;
+                handle_board_after_change()
+                render_board();
+            }
+        } else if(event.key === "ArrowDown") {
+            if(edit_cell_y < nrows - 1) {
+                edit_cell_y += 1;
+                handle_board_after_change()
+                render_board();
+            }
         }
     }
 }
