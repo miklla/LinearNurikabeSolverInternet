@@ -32,6 +32,10 @@ let board = []  // [x][y] = {number, color, mistake}
 const MODE_EDIT = 'e'
 const MODE_PLAY = 'p'
 let g_mode = MODE_EDIT
+
+const TOOLTIP_THRESHOLD_NWHITE = 4  // show if >=
+const TOOLTIP_DELAY_MS = 1000  // delay in milliseconds
+let tooltip_timer = undefined
  
 function initialize_board() {
     for (let x = 0; x < ncols; ++x) {
@@ -572,11 +576,63 @@ function white_spread_dfs(x, y, whites, white_index, last_number) {
     return area
 }
 
+function white_spread_dfs_no_number(x, y, whites, white_index) {
+    let area = 1
+    whites[x][y] = white_index
+
+    if(x > 0 && board[x - 1][y].color === WHITE && whites[x - 1][y] < white_index) {
+        const r = white_spread_dfs_no_number(x - 1, y, whites, white_index)
+        if(r < 0) return -1
+        area += r
+    }
+    if(x < ncols - 1 && board[x + 1][y].color === WHITE && whites[x + 1][y] < white_index) {
+        const r = white_spread_dfs_no_number(x + 1, y, whites, white_index)
+        if(r < 0) return -1
+        area += r
+    }
+    if(y > 0 && board[x][y - 1].color === WHITE && whites[x][y - 1] < white_index) {
+        const r = white_spread_dfs_no_number(x, y - 1, whites, white_index)
+        if(r < 0) return -1
+        area += r
+    }
+    if(y < nrows - 1 && board[x][y + 1].color === WHITE && whites[x][y + 1] < white_index) {
+        const r = white_spread_dfs_no_number(x, y + 1, whites, white_index)
+        if(r < 0) return -1
+        area += r
+    }
+
+    return area
+}
+
 function render_board() {
     //gameBoard.innerHTML = "";
     while (gameBoard.firstChild) { gameBoard.removeChild(gameBoard.firstChild); }
     /*gameBoard.className = "board"*/
+
+    // calculate tooltips
+    let whites = []
+    for(let x = 0; x < ncols; ++x) {
+        whites[x] = []
+        for (let y = 0; y < nrows; ++y) {
+            whites[x][y] = 0
+        }
+    }
+    let white_sizes = [0]
+    let white_index = 0  // white group index
+
+    for(let x = 0; x < ncols; ++x)
+        for(let y = 0; y < nrows; ++y)
+            if(board[x][y].color === WHITE && !whites[x][y]) {
+                ++white_index
+                let area = white_spread_dfs_no_number(x, y, whites, white_index)
+                if(area <= 0) {
+                    alert("white area tooltip error")
+                }
+                
+                white_sizes.push(area)
+            }
  
+    // fill board with cells
     for (let y = 0; y < nrows; ++y) {
         for (let x = 0; x < ncols; ++x) {
             const cell = document.createElement("div")
@@ -613,6 +669,27 @@ function render_board() {
             });
 
             gameBoard.appendChild(cell);
+
+            const tooltip = document.createElement("div")
+            tooltip.className = "tooltip"
+            tooltip.id = "tooltip" + x + "_" + y
+            tooltip.textContent = String(white_sizes[whites[x][y]])
+
+            cell.appendChild(tooltip);
+
+            if(white_sizes[whites[x][y]] >= TOOLTIP_THRESHOLD_NWHITE) {
+                cell.onmouseover = function() {
+                    tooltip_timer = setTimeout(() => {tooltip.classList.add("shown")}, TOOLTIP_DELAY_MS)
+                }
+             
+                cell.onmouseout = function() {
+                    if(tooltip_timer) {
+                        clearTimeout(tooltip_timer)
+                        tooltip_timer = undefined
+                    }
+                    tooltip.classList.remove("shown")
+                }
+            }
         }
         gameBoard.appendChild(document.createElement("br"));
     }
@@ -1189,7 +1266,7 @@ function input_puzzlink_click() {
 function import_from_puzzlink (s) {
     const start = s.slice(0, 29)
     if(start != "https://puzz.link/p?nurikabe/") {
-        alert("start mismatch")
+        alert('start mismatch, link must begin with "https://puzz.link/p?nurikabe/"')
         return false
     }
     const end = s.slice(29)

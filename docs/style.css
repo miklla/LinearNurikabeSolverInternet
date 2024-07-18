@@ -76,6 +76,7 @@ body {
 .cell_text {
     /*font-size: 30px;*/
     vertical-align: middle;
+    pointer-events: none;
 }
 
 .black.mistake {
@@ -326,4 +327,17 @@ span:hover>.dropdown-subcontent {
     margin: 5px;
     -webkit-user-select: none;
     user-select: none;
+}
+
+.tooltip {
+    display: none;
+    position: absolute;
+    background-color: #3989c9;
+    padding: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+}
+
+.tooltip.shown {
+    display: block;
 }
