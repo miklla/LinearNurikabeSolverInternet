@@ -190,6 +190,8 @@ span:hover>.dropdown-subcontent {
 .dropbtn {
     text-align: center;
     padding: 14px 16px;
+    -webkit-user-select: none;
+    user-select:none;
 }
 
 .dropbtn:hover {
@@ -229,6 +231,8 @@ span:hover>.dropdown-subcontent {
 /* Style the nested dropdown menu */
 .nested-dropdown {
     position: relative;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* Style the nested dropdown menu items */
