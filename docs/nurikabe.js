@@ -1480,7 +1480,12 @@ function load_janko_click() {
 
         p += 1
         for(let y = 0; y < nrows; ++y) {
-            const rrr = parts[p + y].split(' ')
+            const rrr = parts[p + y].split(/ |\t/)  // split by spaces and tabs
+            if(rrr.length != ncols) {
+                if(rrr.length != ncols + 1 && (rrr[ncols] != " " && rrr[ncols] != "\t")) {
+                    alert("janko format error " + rrr.length + " != " + ncols)
+                }
+            }
             for(let x = 0; x < ncols; ++x) {
                 if(rrr[x] != '-') {
                     board[x][y].number = Number(rrr[x])
