@@ -1420,6 +1420,26 @@ function import_from_puzzlink (s) {
     return true
 }
 
+function get_janko() {
+    const copy_text = document.getElementById("input_janko")
+    copy_text.select()
+    let janko_index_str = copy_text.value
+    const janko_index_number = Number(janko_index_str)
+    if(janko_index_number <= 0 || janko_index_number > 9999) {
+        alert("puzzle index must be >= 1 and <= 9999")
+        return false
+    }
+    if(janko_index_str.length > 4) {
+        alert("puzzle index can not contain more than 4 characters")
+        return false
+    }
+    while(janko_index_str.length < 4) {
+        janko_index_str = '0' + janko_index_str
+    }
+
+    return "https://www.janko.at/Raetsel/Nurikabe/" + janko_index_str + ".a.htm"
+}
+
 function load_janko_click() {
     const copy_text = document.getElementById("input_janko")
     copy_text.select()
