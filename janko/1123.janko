@@ -1,0 +1,20 @@
+begin
+puzzle nurikabe
+author Otto Janko
+solver Jürgen Helbig
+source https://www.janko.at/Raetsel/Nurikabe/index.htm
+unit 25
+size 12
+problem
+- - - - - - - - - 1 - -
+- - - - - - - - 2 - - -
+- - - - - - - - - 2 - -
+- - - - - - - - - - - -
+- 8 - 3 - 4 - - - - - -
+1 - 2 - - - - - - - - -
+- - - - - - - - - 3 - 6
+- - - - - - 6 - 2 - 2 -
+- - - - - - - - - - - -
+- - 4 - - - - - - - - -
+- - - 8 - - - - - - - -
+- - 7 - - - - - - - - -

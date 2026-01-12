@@ -1,0 +1,22 @@
+[begin]
+number 1
+puzzle nurikabe
+author Sakuhina
+solver Steve C
+source http://sky.ap.teacup.com/sakuhina/
+info 097
+unit 25
+size 12
+[problem]
+1 - - 1 - - - - - 3 - -
+- - - - - - 6 - - - 2 -
+3 - - 4 - - - - - - - -
+- - - - - - - - - - - -
+- - - - - - 6 - 4 - - -
+- 2 - - - - - - - - - 1
+- - - - - - - 4 - - - -
+1 - - - - 1 - - - - - -
+- - - 5 - - - - - 4 - -
+- - - - - - - - - - - 1
+- - 4 - - - - - 2 - - -
+- 3 - - - - - - - - - 3
